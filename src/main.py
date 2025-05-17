@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 import pandas as pd
 import random
 import os
@@ -153,13 +154,15 @@ init_data()
 partidas, jogadores = load_data()
 
 # Menu lateral para navegação
-st.sidebar.title("Menu")
-pagina = st.sidebar.selectbox("Navegue para:", [
-    "Principal",
-    "Estatísticas da Partida",
-    "Estatísticas dos Jogadores",
-    "Sorteio de Times"
-])
+with st.sidebar:
+    image = Image.open("../imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    st.image(image, caption="Chopp's League", use_column_width=True)
+    pagina = st.selectbox("Navegue pelo app:", [
+        "🏠 Tela Principal",
+        "📊 Estatísticas da Partida",
+        "👟 Estatísticas dos Jogadores",
+        "🎲 Sorteio de Times"
+    ])
 
 # Controle de navegação
 if pagina == "Principal":
