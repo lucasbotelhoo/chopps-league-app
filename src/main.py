@@ -69,6 +69,7 @@ def tela_principal(partidas, jogadores):
         st.bar_chart(gols_por_jogador)
 
 # Tela para registrar estatísticas da partida
+FILE_PARTIDAS = "partidas.csv"
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
