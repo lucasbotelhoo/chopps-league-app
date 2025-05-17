@@ -16,7 +16,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
 # Nome da planilha que terá várias abas
-SPREADSHEET_NAME = "Chopps League Dados"
+SPREADSHEET_NAME = "ChoppsLeague"
 spreadsheet = client.open(SPREADSHEET_NAME)
 
 # Função para ler dados da aba, retorna dataframe
