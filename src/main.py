@@ -43,11 +43,11 @@ def tela_principal(partidas, jogadores):
 
     with col1:
         image = "https://logodetimes.com/wp-content/uploads/borussia-dortmund.png"
-        st.image(image, caption="Borrusia",  use_column_width=True)
+        st.image(image, caption="Borrusia",  use_column_width =True)
 
     with col2:
         image = "https://logodetimes.com/wp-content/uploads/football-club-internazionale-milano.png"
-        st.image(image, caption="Inter",  use_column_width=True)
+        st.image(image, caption="Inter",  use_column_width =True)
 
     st.header("Resumo das Partidas")
     st.write(f"Total de partidas registradas: {len(partidas)}")
