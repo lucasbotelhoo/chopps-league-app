@@ -58,11 +58,11 @@ def tela_principal(partidas, jogadores):
     col1, col2 = st.columns(2)
 
     with col1:
-        image = carregar_imagem_fundo_branco("https://logodetimes.com/wp-content/uploads/borussia-dortmund.png")
+        image = carregar_imagem_fundo_branco("./imagens/borrusia_escudo.png")
         st.image(image, caption="Borrusia",  use_container_width =True)
 
     with col2:
-        image = carregar_imagem_fundo_branco("https://logodetimes.com/wp-content/uploads/football-club-internazionale-milano.png")
+        image = carregar_imagem_fundo_branco("./imagens/inter_escudo.png")
         st.image(image, caption="Inter",  use_container_width =True)
 
     st.header("Resumo das Partidas")
