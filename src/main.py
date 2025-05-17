@@ -74,11 +74,10 @@ def tela_partida(partidas):
 
     with st.form("form_partida", clear_on_submit=True):
         data = st.date_input("Data da partida")
-        time1 = st.selectbox("Time 1", ["Borrusia", "Time 2"])
-        time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
-        placar1 = st.number_input(f"Placar {time1}", min_value=0, step=1)
-        placar2 = st.number_input(f"Placar {time2}", min_value=0, step=1)
-        local = st.text_input("Local da partida")
+        partida = st.number_input("Partida Disputada", min_value=0, step=1)
+        time1 = st.selectbox("Borrusia", ["1", "2"])
+        time1 = st.selectbox("Inter de Milão", ["1", "2"])
+        # time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
 
         submit = st.form_submit_button("Registrar")
 
