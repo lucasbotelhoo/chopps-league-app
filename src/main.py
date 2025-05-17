@@ -35,7 +35,17 @@ def save_data(partidas, jogadores):
 
 # Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
-    st.title("Chopp's League - Dashboard")
+    st.title("Chopp's League")
+
+    st.markdown("Bem-vindo à pelada entre amigos!")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.image("./imagens/borrusia_escudo.png", caption="Borrusia", use_column_width=True)
+
+    with col2:
+        st.image("./imagens/inter_escudo.png", caption="Inter", use_column_width=True)
 
     st.header("Resumo das Partidas")
     st.write(f"Total de partidas registradas: {len(partidas)}")
