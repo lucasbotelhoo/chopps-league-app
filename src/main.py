@@ -41,14 +41,22 @@ def tela_principal(partidas, jogadores):
 
     col1, col2 = st.columns(2)
 
-    image1 = Image.open("./imagens/borrusia_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-    image2 = Image.open("./imagens/inter_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    # Caminhos das imagens
+    caminho_img1 = "./imagens/borrusia_escudo.png"
+    caminho_img2 = "./imagens/inter_escudo.png"
 
-    with col1:
-        st.image(image1, caption="Borrusia",  use_column_width=True)
+    # Verifica se as imagens existem antes de abrir
+    if os.path.exists(caminho_img1) and os.path.exists(caminho_img2):
+        image1 = Image.open(caminho_img1)
+        image2 = Image.open(caminho_img2)
 
-    with col2:
-        st.image(image2, caption="Inter",  use_column_width=True)
+        with col1:
+            st.image(image1, caption="Borrusia", use_column_width=True)
+
+        with col2:
+            st.image(image2, caption="Inter", use_column_width=True)
+    else:
+        st.error("Imagens não encontradas na pasta './imagens'. Por favor, confirme se as imagens foram enviadas para o repositório.")
 
     st.header("Resumo das Partidas")
     st.write(f"Total de partidas registradas: {len(partidas)}")
