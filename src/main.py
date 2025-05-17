@@ -74,9 +74,9 @@ def tela_partida(partidas):
 
     with st.form("form_partida", clear_on_submit=True):
         data = st.date_input("Data da partida")
-        partida = st.number_input("Partida Disputada", min_value=0, step=1)
+        partidadisputada = st.number_input("Partida Disputada", min_value=0, step=1)
         time1 = st.selectbox("Borrusia", ["1", "2"])
-        time1 = st.selectbox("Inter de Milão", ["1", "2"])
+        time2 = st.selectbox("Inter de Milão", ["1", "2"])
         # time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
 
         submit = st.form_submit_button("Registrar")
@@ -84,11 +84,9 @@ def tela_partida(partidas):
         if submit:
             nova_partida = {
                 "Data": data,
-                "Time 1": time1,
-                "Time 2": time2,
-                "Placar Time 1": placar1,
-                "Placar Time 2": placar2,
-                "Local": local,
+                "Partida": partidadisputada,
+                "Borussia": time1,
+                "Inter de Milão": time2,
             }
             partidas = partidas.append(nova_partida, ignore_index=True)
             partidas.to_csv(FILE_PARTIDAS, index=False)
