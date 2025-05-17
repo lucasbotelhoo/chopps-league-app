@@ -85,11 +85,9 @@ def tela_partida(partidas):
         if submit:
             nova_partida = {
                 "Data": data,
-                "Time 1": time1,
-                "Time 2": time2,
-                "Placar Time 1": placar1,
-                "Placar Time 2": placar2,
-                "Local": local,
+                "Partida": partidadisputada,
+                "Borussia": time1,
+                "Inter de Milão": time2,
             }
             partidas = partidas.append(nova_partida, ignore_index=True)
             partidas.to_csv(FILE_PARTIDAS, index=False)
