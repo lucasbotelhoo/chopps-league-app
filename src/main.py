@@ -33,6 +33,22 @@ def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
+
+def carregar_imagem_fundo_branco(caminho_imagem):
+    # Abre a imagem original (com transparência)
+    imagem_transparente = Image.open(caminho_imagem).convert("RGBA")
+    
+    # Cria uma imagem nova com fundo branco do mesmo tamanho
+    fundo_branco = Image.new("RGBA", imagem_transparente.size, (255, 255, 255, 255))
+    
+    # Cola a imagem transparente sobre o fundo branco
+    imagem_com_fundo = Image.alpha_composite(fundo_branco, imagem_transparente)
+    
+    # Converte para RGB (remove canal alpha)
+    imagem_rgb = imagem_com_fundo.convert("RGB")
+    
+    return imagem_rgb
+
 # Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
     st.title("Chopp's League")
@@ -42,11 +58,11 @@ def tela_principal(partidas, jogadores):
     col1, col2 = st.columns(2)
 
     with col1:
-        image = "https://logodetimes.com/wp-content/uploads/borussia-dortmund.png"
+        image = carregar_imagem_fundo_branco("https://logodetimes.com/wp-content/uploads/borussia-dortmund.png")
         st.image(image, caption="Borrusia",  use_container_width =True)
 
     with col2:
-        image = "https://logodetimes.com/wp-content/uploads/football-club-internazionale-milano.png"
+        image = carregar_imagem_fundo_branco("https://logodetimes.com/wp-content/uploads/football-club-internazionale-milano.png")
         st.image(image, caption="Inter",  use_container_width =True)
 
     st.header("Resumo das Partidas")
