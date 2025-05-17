@@ -165,11 +165,11 @@ with st.sidebar:
     ])
 
 # Controle de navegação
-if pagina == "Principal":
+if pagina == "🏠 Tela Principal":
     tela_principal(partidas, jogadores)
-elif pagina == "Estatísticas da Partida":
+elif pagina == "📊 Estatísticas da Partida":
     partidas = tela_partida(partidas)
-elif pagina == "Estatísticas dos Jogadores":
+elif pagina == "👟 Estatísticas dos Jogadores":
     jogadores = tela_jogadores(jogadores)
-elif pagina == "Sorteio de Times":
+elif pagina == "🎲 Sorteio de Times":
     tela_sorteio()
