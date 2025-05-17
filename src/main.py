@@ -1,132 +1,172 @@
 import streamlit as st
-import json
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
 import pandas as pd
 import random
-from datetime import date
+import os
 
-# --- Autenticação Google Sheets ---
-scope = ['https://spreadsheets.google.com/feeds',
-         'https://www.googleapis.com/auth/drive']
+# Arquivos CSV para armazenar dados localmente
+FILE_PARTIDAS = "partidas.csv"
+FILE_JOGADORES = "jogadores.csv"
 
-json_creds = st.secrets["google_service_account"]["json"]
-creds_dict = json.loads(json_creds)
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client = gspread.authorize(creds)
+# Inicializa os dados ou cria arquivos vazios se não existirem
+def init_data():
+    if not os.path.exists(FILE_PARTIDAS):
+        df = pd.DataFrame(columns=[
+            "Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"
+        ])
+        df.to_csv(FILE_PARTIDAS, index=False)
 
-# Nome da planilha que terá várias abas
-SPREADSHEET_NAME = "Chopps League Dados"
-spreadsheet = client.open(SPREADSHEET_NAME)
+    if not os.path.exists(FILE_JOGADORES):
+        df = pd.DataFrame(columns=[
+            "Nome", "Time", "Gols", "Assistências", "Faltas", "Cartões Amarelos", "Cartões Vermelhos"
+        ])
+        df.to_csv(FILE_JOGADORES, index=False)
 
-# Função para ler dados da aba, retorna dataframe
-def ler_aba(nome_aba):
-    try:
-        worksheet = spreadsheet.worksheet(nome_aba)
-        dados = worksheet.get_all_records()
-        df = pd.DataFrame(dados)
-        return df
-    except Exception:
-        # Aba não existe ou vazia
-        return pd.DataFrame()
+# Função para carregar dados
+def load_data():
+    partidas = pd.read_csv(FILE_PARTIDAS)
+    jogadores = pd.read_csv(FILE_JOGADORES)
+    return partidas, jogadores
 
-# Função para adicionar linha numa aba (cria a aba se não existir)
-def adicionar_linha(nome_aba, linha):
-    try:
-        worksheet = spreadsheet.worksheet(nome_aba)
-    except gspread.exceptions.WorksheetNotFound:
-        worksheet = spreadsheet.add_worksheet(title=nome_aba, rows="1000", cols="20")
-        # Se quiser, pode adicionar cabeçalho manualmente aqui
+# Função para salvar dados
+def save_data(partidas, jogadores):
+    partidas.to_csv(FILE_PARTIDAS, index=False)
+    jogadores.to_csv(FILE_JOGADORES, index=False)
 
-    worksheet.append_row(linha)
+# Tela Principal com gráficos simples e indicadores
+def tela_principal(partidas, jogadores):
+    st.title("Chopp's League - Dashboard")
 
-# --- Dados fixos ---
-times = ["Borrusia", "Time 2"]
-jogadores = ["Matheus Moreira", "José Moreira", "Lucas", "Alex", "Gustavo",
-            "Lula", "Juninho", "Jesus", "Gabriel", "Arthur",
-            "Walter", "Eduardo", "Cristian", "Luciano", "Deivid"]
+    st.header("Resumo das Partidas")
+    st.write(f"Total de partidas registradas: {len(partidas)}")
+    if not partidas.empty:
+        st.write("Última partida registrada:")
+        st.write(partidas.tail(1))
 
-# Menu lateral
-st.sidebar.title("Menu")
-tela = st.sidebar.selectbox("Escolha a tela:",
-                            ["Dashboard", "Registrar Partida", "Registrar Jogadores", "Sorteio Times"])
+    st.header("Resumo dos Jogadores")
+    st.write(f"Total de jogadores registrados: {len(jogadores)}")
+    if not jogadores.empty:
+        gols_totais = jogadores["Gols"].sum()
+        st.write(f"Gols totais: {gols_totais}")
 
-# --- Tela Dashboard ---
-if tela == "Dashboard":
-    st.title("Dashboard - Chopp's League")
+    # Exemplo gráfico simples - gols por jogador
+    if not jogadores.empty:
+        gols_por_jogador = jogadores.groupby("Nome")["Gols"].sum().sort_values(ascending=False)
+        st.bar_chart(gols_por_jogador)
 
-    st.subheader("Estatísticas de Partidas")
-    df_partidas = ler_aba("Partidas")
-    if not df_partidas.empty:
-        st.dataframe(df_partidas)
-        # Você pode colocar gráficos aqui usando st.bar_chart, st.line_chart etc.
-        placares = df_partidas[['Placar Time 1', 'Placar Time 2']]
-        st.bar_chart(placares)
-    else:
-        st.write("Nenhuma partida registrada.")
+# Tela para registrar estatísticas da partida
+def tela_partida(partidas):
+    st.title("Registrar Estatísticas da Partida")
 
-# --- Tela Registrar Partida ---
-elif tela == "Registrar Partida":
-    st.title("Registrar nova partida")
+    with st.form("form_partida", clear_on_submit=True):
+        data = st.date_input("Data da partida")
+        time1 = st.selectbox("Time 1", ["Borrusia", "Time 2"])
+        time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
+        placar1 = st.number_input(f"Placar {time1}", min_value=0, step=1)
+        placar2 = st.number_input(f"Placar {time2}", min_value=0, step=1)
+        local = st.text_input("Local da partida")
 
-    with st.form("form_partida"):
-        data_partida = st.date_input("Data da partida", value=date.today())
-        time_1 = st.selectbox("Time 1", times, index=0)
-        placar_1 = st.number_input("Placar Time 1", min_value=0, step=1)
-        time_2 = st.selectbox("Time 2", times, index=1)
-        placar_2 = st.number_input("Placar Time 2", min_value=0, step=1)
-
-        submit = st.form_submit_button("Salvar partida")
+        submit = st.form_submit_button("Registrar")
 
         if submit:
-            nova_linha = [
-                str(data_partida),
-                time_1,
-                placar_1,
-                time_2,
-                placar_2
-            ]
-            adicionar_linha("Partidas", nova_linha)
+            nova_partida = {
+                "Data": data,
+                "Time 1": time1,
+                "Time 2": time2,
+                "Placar Time 1": placar1,
+                "Placar Time 2": placar2,
+                "Local": local,
+            }
+            partidas = partidas.append(nova_partida, ignore_index=True)
+            partidas.to_csv(FILE_PARTIDAS, index=False)
             st.success("Partida registrada com sucesso!")
 
-# --- Tela Registrar Jogadores ---
-elif tela == "Registrar Jogadores":
-    st.title("Registrar estatísticas dos jogadores")
+    st.write("Partidas registradas:")
+    st.dataframe(partidas)
 
-    df_jogadores = ler_aba("Jogadores")
-    jogadores_cadastrados = df_jogadores["Nome"].tolist() if not df_jogadores.empty else []
+    return partidas
 
-    with st.form("form_jogadores"):
-        nome = st.selectbox("Jogador", jogadores)
-        if nome in jogadores_cadastrados:
-            st.info(f"Já existe estatísticas para o jogador {nome}.")
+# Tela para registrar estatísticas dos jogadores
+def tela_jogadores(jogadores):
+    st.title("Registrar Estatísticas dos Jogadores")
+
+    jogadores_lista = [
+        "Matheus Moreira", "José Moreira", "Lucas", "Alex", "Gustavo",
+        "Lula", "Juninho", "Jesus", "Gabriel", "Arthur",
+        "Walter", "Eduardo", "Cristian", "Luciano", "Deivid"
+    ]
+
+    times = ["Borrusia", "Time 2"]
+
+    with st.form("form_jogadores", clear_on_submit=True):
+        nome = st.selectbox("Jogador", jogadores_lista)
+        time = st.selectbox("Time", times)
         gols = st.number_input("Gols", min_value=0, step=1)
         assistencias = st.number_input("Assistências", min_value=0, step=1)
         faltas = st.number_input("Faltas", min_value=0, step=1)
+        cart_amarelos = st.number_input("Cartões Amarelos", min_value=0, step=1)
+        cart_vermelhos = st.number_input("Cartões Vermelhos", min_value=0, step=1)
 
-        submit = st.form_submit_button("Salvar estatísticas")
+        submit = st.form_submit_button("Registrar")
 
         if submit:
-            nova_linha = [
-                nome,
-                gols,
-                assistencias,
-                faltas
-            ]
-            adicionar_linha("Jogadores", nova_linha)
-            st.success(f"Estatísticas do jogador {nome} salvas com sucesso!")
+            registro = {
+                "Nome": nome,
+                "Time": time,
+                "Gols": gols,
+                "Assistências": assistencias,
+                "Faltas": faltas,
+                "Cartões Amarelos": cart_amarelos,
+                "Cartões Vermelhos": cart_vermelhos
+            }
+            jogadores = jogadores.append(registro, ignore_index=True)
+            jogadores.to_csv(FILE_JOGADORES, index=False)
+            st.success("Estatísticas do jogador registradas com sucesso!")
 
-    if not df_jogadores.empty:
-        st.subheader("Estatísticas cadastradas")
-        st.dataframe(df_jogadores)
+    st.write("Estatísticas registradas dos jogadores:")
+    st.dataframe(jogadores)
 
-# --- Tela Sorteio Times ---
-elif tela == "Sorteio Times":
-    st.title("Sorteio de times")
+    return jogadores
+
+# Tela para sorteio dos times
+def tela_sorteio():
+    st.title("Sorteio de Times")
+
+    jogadores_lista = [
+        "Matheus Moreira", "José Moreira", "Lucas", "Alex", "Gustavo",
+        "Lula", "Juninho", "Jesus", "Gabriel", "Arthur",
+        "Walter", "Eduardo", "Cristian", "Luciano", "Deivid"
+    ]
 
     if st.button("Sortear times"):
-        random.shuffle(jogadores)
-        time_a = jogadores[:len(jogadores)//2]
-        time_b = jogadores[len(jogadores)//2:]
-        st.write("Time A:", time_a)
-        st.write("Time B:", time_b)
+        random.shuffle(jogadores_lista)
+        time1 = jogadores_lista[:len(jogadores_lista)//2]
+        time2 = jogadores_lista[len(jogadores_lista)//2:]
+        st.write("**Time 1 (Borrusia):**")
+        for jogador in time1:
+            st.write("- " + jogador)
+        st.write("**Time 2:**")
+        for jogador in time2:
+            st.write("- " + jogador)
+
+# Inicialização dos dados
+init_data()
+partidas, jogadores = load_data()
+
+# Menu lateral para navegação
+st.sidebar.title("Menu")
+pagina = st.sidebar.selectbox("Navegue para:", [
+    "Principal",
+    "Estatísticas da Partida",
+    "Estatísticas dos Jogadores",
+    "Sorteio de Times"
+])
+
+# Controle de navegação
+if pagina == "Principal":
+    tela_principal(partidas, jogadores)
+elif pagina == "Estatísticas da Partida":
+    partidas = tela_partida(partidas)
+elif pagina == "Estatísticas dos Jogadores":
+    jogadores = tela_jogadores(jogadores)
+elif pagina == "Sorteio de Times":
+    tela_sorteio()
