@@ -41,13 +41,14 @@ def tela_principal(partidas, jogadores):
 
     col1, col2 = st.columns(2)
 
+    image1 = Image.open("./imagens/borrusia_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    image2 = Image.open("./imagens/inter_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+
     with col1:
-        image = Image.open("./imagens/borrusia_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-        st.image(image, caption="Borrusia",  use_column_width=True)
+        st.image(image1, caption="Borrusia",  use_column_width=True)
 
     with col2:
-        image = Image.open("./imagens/inter_escudo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-        st.image(image, caption="Inter",  use_column_width=True)
+        st.image(image2, caption="Inter",  use_column_width=True)
 
     st.header("Resumo das Partidas")
     st.write(f"Total de partidas registradas: {len(partidas)}")
