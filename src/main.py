@@ -53,30 +53,32 @@ partidas = carregar_partidas()
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
+    # Inicializa o contador de partidas no session_state
+    if "numero_partida" not in st.session_state:
+        st.session_state.numero_partida = len(partidas) + 1  # começa do próximo número
+
     with st.form("form_partida", clear_on_submit=True):
-        data = st.date_input("Data da partida")
-        partidadisputada = st.number_input("Partida Disputada", min_value=0, step=1)
-        time1 = st.selectbox("Borrusia", ["1", "2"])
-        time2 = st.selectbox("Inter de Milão", ["1", "2"])
-        # time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
+        data = st.date_input("Data da partida", value=date.today())
+        
+        # Exibe o número da partida automaticamente (não editável)
+        st.markdown(f"**Partida {st.session_state.numero_partida}**")
+        
+        # Coleta os resultados dos times
+        borussia = st.selectbox("Borussia", ["1", "2"])
+        inter = st.selectbox("Inter de Milão", ["1", "2"])
 
         submit = st.form_submit_button("Registrar")
 
         if submit:
             nova_partida = {
                 "Data": data,
-                "Partida": partidadisputada,
-                "Borussia": time1,
-                "Inter de Milão": time2,
+                "Partida": st.session_state.numero_partida,
+                "Borussia": borussia,
+                "Inter de Milão": inter,
             }
+
             partidas = partidas.append(nova_partida, ignore_index=True)
             partidas.to_csv(FILE_PARTIDAS, index=False)
-            st.success("Partida registrada com sucesso!")
-
-    st.write("Partidas registradas:")
-    st.dataframe(partidas)
-
-    return partidas
 
 # Tela para registrar estatísticas dos jogadores
 def tela_jogadores(jogadores):
