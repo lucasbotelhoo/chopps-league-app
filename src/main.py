@@ -241,6 +241,7 @@ def tela_presenca_login():
 # Regras Oficiais
 
 def tela_regras():
+    # Título principal maior, não quebra linha
     st.markdown(
         """
         <h1 style="font-size:32px; white-space: nowrap; overflow-x: auto; margin-bottom: 0.5em;">
@@ -250,6 +251,7 @@ def tela_regras():
         unsafe_allow_html=True
     )
 
+    # Subtítulos menores que o título principal
     def subtitulo(texto):
         st.markdown(f'<h3 style="font-size:20px; margin-top: 1em;">{texto}</h3>', unsafe_allow_html=True)
 
@@ -317,6 +319,7 @@ def tela_regras():
     - **Quem não estiver em dia com os compromissos não joga.**
     """)
 
+    # Nova regra: Avaliação pós-jogo
     subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba, Craque e Destaque")
     st.markdown("""
     - Após cada partida, será feita uma votação divertida para eleger:
@@ -325,15 +328,8 @@ def tela_regras():
     - A votação é **exclusiva para quem confirmou presença e jogou na pelada**.
     - Somente jogadores presentes poderão votar.
     - A finalidade é **uma brincadeira para animar o grupo e fortalecer o espírito da pelada**.
-    - Os resultados serão divulgados na tela **Avaliação Pós-Jogo**.
+    - Os resultados serão divulgados para descontração e reconhecimento entre os participantes.
     """)
-
-def main():
-    st.sidebar.title("Menu")
-    opcao = st.sidebar.radio("Selecione a tela:", ["Regras Oficiais"])
-
-    if opcao == "Regras Oficiais":
-        tela_regras()
 
 # Menu lateral para navegação
 with st.sidebar:
@@ -361,5 +357,3 @@ elif pagina == "✅ Presença e Login":
     tela_presenca_login()
 elif pagina == "📜 Regras Choppe's League":
     tela_regras()
-if __name__ == "__main__":
-    main()
