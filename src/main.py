@@ -167,26 +167,6 @@ def tela_sorteio():
 init_data()
 partidas, jogadores = load_data()
 
-# Menu lateral para navegação
-with st.sidebar:
-    image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-    st.image(image, caption="Chopp's League", use_container_width =True)
-    pagina = st.selectbox("Navegue pelo app:", [
-        "🏠 Tela Principal",
-        "📊 Estatísticas da Partida",
-        "👟 Estatísticas dos Jogadores",
-        "🎲 Sorteio de Times"
-    ])
-
-# Controle de navegação
-if pagina == "🏠 Tela Principal":
-    tela_principal(partidas, jogadores)
-elif pagina == "📊 Estatísticas da Partida":
-    partidas = tela_partida(partidas)
-elif pagina == "👟 Estatísticas dos Jogadores":
-    jogadores = tela_jogadores(jogadores)
-elif pagina == "🎲 Sorteio de Times":
-    tela_sorteio()
 # Inicialização dos dados
 init_data()
 partidas, jogadores = load_data()
