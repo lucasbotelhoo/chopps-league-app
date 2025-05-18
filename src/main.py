@@ -229,25 +229,30 @@ def tela_presenca_login():
                         st.experimental_rerun()
                     else:
                         st.error("E-mail ou senha incorretos.")
+elif aba == "📝 Cadastro":
+    with st.form("form_cadastro", clear_on_submit=True):
+        nome = st.text_input("Nome completo")
+        email = st.text_input("E-mail")
+        senha = st.text_input("Senha", type="password")
+        posicao = st.selectbox("Posição que joga", ["Linha", "Gol"])
+        submit = st.form_submit_button("Cadastrar")
 
-        elif aba == "📝 Cadastro":
-            with st.form("form_cadastro", clear_on_submit=True):
-                nome = st.text_input("Nome completo")
-                email = st.text_input("E-mail")
-                senha = st.text_input("Senha", type="password")
-                submit = st.form_submit_button("Cadastrar")
-
-                if submit:
-                    if not nome or not email or not senha:
-                        st.warning("Preencha todos os campos.")
-                    elif email in usuarios["Email"].values:
-                        st.warning("Este e-mail já está cadastrado.")
-                    else:
-                        novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
-                        usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
-                        usuarios.to_csv(FILE_USUARIOS, index=False)
-                        st.success("Cadastro realizado! Faça login para confirmar presença.")
-                        st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
+        if submit:
+            if not nome or not email or not senha or not posicao:
+                st.warning("Preencha todos os campos.")
+            elif email in usuarios["Email"].values:
+                st.warning("Este e-mail já está cadastrado.")
+            else:
+                novo_usuario = {
+                    "Nome": nome,
+                    "Email": email,
+                    "Senha": senha,
+                    "Posição": posicao
+                }
+                usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
+                usuarios.to_csv(FILE_USUARIOS, index=False)
+                st.success("Cadastro realizado! Faça login para confirmar presença.")
+                st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
 
     else:
         usuario = st.session_state.usuario_logado
