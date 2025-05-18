@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit_js_eval
 import requests
 from io import BytesIO
 from PIL import Image
