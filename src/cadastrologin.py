@@ -82,6 +82,6 @@ def tela_login():
 
 # FLUXO PRINCIPAL
 if st.session_state.get("usuario_logado"):
-    tela_main()
+    tela_login()
 else:
     tela_login()
