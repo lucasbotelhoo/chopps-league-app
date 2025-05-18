@@ -65,7 +65,7 @@ def tela_login():
                     st.session_state["usuario_logado"] = True
                     st.session_state["nome"] = cadastro.get("nome")
                     st.success("Login realizado com sucesso!")
-                    st.switch_page("main/main.py")
+                    st.switch_page("pages/main.py")
                 else:
                     st.warning("E-mail ou senha incorretos.")
 
