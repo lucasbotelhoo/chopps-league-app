@@ -170,63 +170,28 @@ def tela_sorteio():
         for jogador in time2:
             st.write("- " + jogador)
 
-# Garante que a pasta "usuarios" existe
-os.makedirs("usuarios", exist_ok=True)
-
-# Caminhos dos arquivos (dentro da pasta criada)
-# Define o diretório base (onde o script está localizado)
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
-
-# Cria a pasta 'usuarios' se não existir
-os.makedirs(PASTA_USUARIOS, exist_ok=True)
-
-## Define os caminhos dos arquivos
-PASTA_USUARIOS = "usuarios"
-os.makedirs(PASTA_USUARIOS, exist_ok=True)
-FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
-FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
-
-FILE_USUARIOS = "usuarios.csv"
-FILE_PRESENCAS = "presencas.csv"
-
-def formatar_telefone_js():
-    # JS para formatar o telefone enquanto digita
-    js_code = """
-    (function() {
-        let input = window.streamlitInput;
-        if (!input) return "";
-
-        let digits = input.replace(/\\D/g, '');
-        if (digits.length > 11) digits = digits.slice(0, 11);
-
-        let formatted = "";
-        if (digits.length > 0) {
-            formatted += "(" + digits.substring(0, 2);
-        }
-        if (digits.length >= 3) {
-            formatted += ") " + digits.substring(2, 3) + " ";
-        }
-        if (digits.length >= 7) {
-            formatted += digits.substring(3, 7) + "-";
-        } else if (digits.length > 3) {
-            formatted += digits.substring(3);
-        }
-        if (digits.length >= 7) {
-            formatted += digits.substring(7, 11);
-        }
-
-        return formatted;
-    })();
-    """
-    return js_code
+# Tela de cadastro e login
+def formatar_telefone(telefone):
+    numeros = re.sub(r'\D', '', telefone)[:11]
+    if len(numeros) == 0:
+        return ""
+    if len(numeros) <= 2:
+        return "(" + numeros
+    if len(numeros) == 3:
+        return f"({numeros[:2]}) {numeros[2]}"
+    if len(numeros) <= 6:
+        return f"({numeros[:2]}) {numeros[2:]}"
+    if len(numeros) <= 10:
+        return f"({numeros[:2]}) {numeros[2:6]}-{numeros[6:]}"
+    return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # ... Seu código de carregamento e estado omitido para foco na parte do telefone ...
+    if "telefone_raw" not in st.session_state:
+        st.session_state["telefone_raw"] = ""
 
-    if not st.session_state.get("usuario_logado"):
+    if not st.session_state.get("usuario_logado", False):
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
         if aba == "📝 Cadastro":
@@ -237,32 +202,58 @@ def tela_presenca_login():
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
 
-                # Campo de telefone com máscara dinâmica usando streamlit_js_eval
-                telefone_raw = st.text_input("Número de telefone (com DDD, ex: (31) 9 99115-9656)")
-
-                # Passa valor para JS
-                st.experimental_set_query_params(streamlitInput=telefone_raw)
-                telefone_formatado = streamlit_js_eval(
-                    formatar_telefone_js(),
-                    key="telefone_mask"
+                # Campo que aceita só números:
+                telefone_input = st.text_input(
+                    "Número de telefone (somente números, ex: 319991159656)",
+                    value=st.session_state["telefone_raw"],
+                    key="telefone_input"
                 )
 
-                st.write(f"Formato atual: `{telefone_formatado}`")
+                # Filtra só números e atualiza o estado para refletir no input
+                numeros = re.sub(r'\D', '', telefone_input)
+                if numeros != st.session_state["telefone_raw"]:
+                    st.session_state["telefone_raw"] = numeros
+                    # Para forçar o recarregamento com o valor filtrado:
+                    st.experimental_rerun()
+
+                telefone_formatado = formatar_telefone(numeros)
+                st.write(f"Telefone formatado: {telefone_formatado}")
 
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    # Aqui você pode validar o telefone_formatado ou o raw
-                    # Exemplo básico:
-                    if len(''.join(filter(str.isdigit, telefone_formatado))) != 11:
-                        st.warning("Número de telefone inválido. Deve conter DDD + número completo.")
-                    elif not nome or not email or not senha or not posicao or not nascimento or not telefone_formatado:
+                    if len(numeros) != 11:
+                        st.warning("Número de telefone inválido. Deve conter DDD + número completo (11 dígitos).")
+                    elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
                         st.warning("Preencha todos os campos.")
                     else:
-                        # Continue com o cadastro normalmente...
                         st.success("Cadastro realizado com sucesso!")
 
-    # ... restante do seu código ...
+        elif aba == "🔐 Login":
+            with st.form("form_login", clear_on_submit=True):
+                email_login = st.text_input("E-mail", key="email_login")
+                senha_login = st.text_input("Senha", type="password", key="senha_login")
+                submit_login = st.form_submit_button("Entrar")
+
+                if submit_login:
+                    if email_login and senha_login:
+                        st.session_state["usuario_logado"] = True
+                        st.success(f"Usuário {email_login} logado com sucesso!")
+                    else:
+                        st.warning("Preencha email e senha para login.")
+
+    else:
+        st.write("Usuário já está logado!")
+        if st.button("Confirmar Presença"):
+            st.success("Presença confirmada. Obrigado!")
+
+        if st.button("Logout"):
+            st.session_state["usuario_logado"] = False
+            st.experimental_rerun()
+
+
+if __name__ == "__main__":
+    tela_presenca_login()
 
 def tela_regras():
     # Título principal maior, não quebra linha
@@ -343,7 +334,6 @@ def tela_regras():
     - **Quem não estiver em dia com os compromissos não joga.**
     """)
 
-    # Nova regra: Avaliação pós-jogo
     subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba, Craque e Destaque")
     st.markdown("""
     - Após cada partida, será feita uma votação divertida para eleger:
