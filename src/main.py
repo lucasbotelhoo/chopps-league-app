@@ -175,30 +175,32 @@ PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
 # Cria a pasta 'usuarios' se não existir
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 
-# Define os caminhos dos arquivos
+## Define os caminhos dos arquivos
+PASTA_USUARIOS = "usuarios"
+os.makedirs(PASTA_USUARIOS, exist_ok=True)
 FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
 FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-# Carrega os dados dos usuários
-if os.path.exists(FILE_USUARIOS):
-    try:
-        usuarios = pd.read_csv(FILE_USUARIOS)
-    except pd.errors.EmptyDataError:
+    # Carrega os dados dos usuários com tratamento para arquivos vazios
+    if os.path.exists(FILE_USUARIOS):
+        try:
+            usuarios = pd.read_csv(FILE_USUARIOS)
+        except pd.errors.EmptyDataError:
+            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+    else:
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
-else:
-    usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
 
-# Carrega as presenças
-if os.path.exists(FILE_PRESENCAS):
-    try:
-        presencas = pd.read_csv(FILE_PRESENCAS)
-    except pd.errors.EmptyDataError:
+    # Carrega as presenças com tratamento para arquivos vazios
+    if os.path.exists(FILE_PRESENCAS):
+        try:
+            presencas = pd.read_csv(FILE_PRESENCAS)
+        except pd.errors.EmptyDataError:
+            presencas = pd.DataFrame(columns=["Nome", "Email"])
+    else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
-else:
-    presencas = pd.DataFrame(columns=["Nome", "Email"])
 
     # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
