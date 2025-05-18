@@ -179,8 +179,6 @@ def tela_sorteio():
         for jogador in time2:
             st.write("- " + jogador)
 
-            st.experimental_rerun()
-
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
@@ -266,8 +264,6 @@ def tela_presenca_login():
 
         if st.button("Sair"):
             st.session_state.usuario_logado = None
-            st.experimental_rerun()
-
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
