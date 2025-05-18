@@ -180,7 +180,7 @@ PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
 # Cria a pasta 'usuarios' se não existir
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 
-## Define os caminhos dos arquivos
+# Define os caminhos dos arquivos
 PASTA_USUARIOS = "usuarios"
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
@@ -194,9 +194,9 @@ def tela_presenca_login():
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
         except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição"])
     else:
-        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição"])
 
     # Carrega as presenças com tratamento para arquivos vazios
     if os.path.exists(FILE_PRESENCAS):
@@ -235,6 +235,7 @@ def tela_presenca_login():
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
+                posicao = st.selectbox("Posição que joga", ["Linha", "Gol"])
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
@@ -243,7 +244,7 @@ def tela_presenca_login():
                     elif email in usuarios["Email"].values:
                         st.warning("Este e-mail já está cadastrado.")
                     else:
-                        novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
+                        novo_usuario = {"Nome": nome, "Email": email, "Senha": senha, "Posição": posicao}
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
