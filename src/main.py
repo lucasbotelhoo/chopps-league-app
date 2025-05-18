@@ -5,6 +5,7 @@ from PIL import Image
 import pandas as pd
 import random
 import os
+from datetime import date
 
 # Arquivos CSV para armazenar dados localmente
 FILE_PARTIDAS = "partidas.csv"
@@ -14,7 +15,7 @@ FILE_JOGADORES = "jogadores.csv"
 def init_data():
     if not os.path.exists(FILE_PARTIDAS):
         df = pd.DataFrame(columns=[
-            "Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"
+            "Data da partida", "N° Partida", "Placar Borrusia", "Placar Inter"
         ])
         df.to_csv(FILE_PARTIDAS, index=False)
 
@@ -44,11 +45,11 @@ def tela_principal(partidas, jogadores):
     col1, col2 = st.columns(2)
 
     with col1:
-        image = Image.open("./imagens/borrusia_escudo.jpg")
+        image = Image.open("../imagens/borrusia_escudo.jpg")
         st.image(image, caption="Borrusia",  use_container_width =True)
 
     with col2:
-        image = Image.open("./imagens/inter_escudo.jpg")
+        image = Image.open("../imagens/inter_escudo.jpg")
         st.image(image, caption="Inter",  use_container_width =True)
 
     st.header("Resumo das Partidas")
@@ -72,26 +73,28 @@ def tela_principal(partidas, jogadores):
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
+    num_partida = len(partidas) + 1  # Número da próxima partida
+
     with st.form("form_partida", clear_on_submit=True):
-        data = st.date_input("Data da partida")
-        time1 = st.selectbox("Time 1", ["Borrusia", "Time 2"])
-        time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
-        placar1 = st.number_input(f"Placar {time1}", min_value=0, step=1)
-        placar2 = st.number_input(f"Placar {time2}", min_value=0, step=1)
-        local = st.text_input("Local da partida")
+        data = st.date_input("Data da partida", value=date.today())
+
+        st.text_input("N° da Partida", value=str(num_partida), disabled=True)
+
+        # Fixar os times como "Borrusia" e "Inter"
+        placar_borrusia = st.number_input("Placar Borrusia", min_value=0, max_value=2, step=1)
+        placar_inter = st.number_input("Placar Inter", min_value=0, max_value=2, step=1)
 
         submit = st.form_submit_button("Registrar")
 
         if submit:
             nova_partida = {
-                "Data": data,
-                "Time 1": time1,
-                "Time 2": time2,
-                "Placar Time 1": placar1,
-                "Placar Time 2": placar2,
-                "Local": local,
+                "N° Partida": num_partida,
+                "Data da partida": data,
+                "Placar Borrusia": placar_borrusia,
+                "Placar Inter": placar_inter
             }
-            partidas = partidas.append(nova_partida, ignore_index=True)
+
+            partidas = pd.concat([partidas, pd.DataFrame([nova_partida])], ignore_index=True)
             partidas.to_csv(FILE_PARTIDAS, index=False)
             st.success("Partida registrada com sucesso!")
 
@@ -169,7 +172,7 @@ partidas, jogadores = load_data()
 
 # Menu lateral para navegação
 with st.sidebar:
-    image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    image = Image.open("../imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
     st.image(image, caption="Chopp's League", use_container_width =True)
     pagina = st.selectbox("Navegue pelo app:", [
         "🏠 Tela Principal",
