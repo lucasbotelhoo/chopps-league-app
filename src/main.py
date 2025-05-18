@@ -324,7 +324,7 @@ def tela_regras():
     """)
 
     # Nova regra: Avaliação pós-jogo
-    subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba, Craque e Destaque")
+    subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba e Craque")
     st.markdown("""
     - Após cada partida, será feita uma votação divertida para eleger:
         - **Péreba**: jogador com a pior performance da rodada.
