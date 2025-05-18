@@ -179,10 +179,27 @@ def tela_sorteio():
         for jogador in time2:
             st.write("- " + jogador)
 
+# Garante que a pasta "usuarios" existe
+os.makedirs("usuarios", exist_ok=True)
+
+# Caminhos dos arquivos (dentro da pasta criada)
+# Define o diretório base (onde o script está localizado)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
+
+# Cria a pasta 'usuarios' se não existir
+os.makedirs(PASTA_USUARIOS, exist_ok=True)
+
+## Define os caminhos dos arquivos
+PASTA_USUARIOS = "usuarios"
+os.makedirs(PASTA_USUARIOS, exist_ok=True)
+FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
+FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
+
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados dos usuários
+    # Carrega os dados dos usuários com tratamento para arquivos vazios
     if os.path.exists(FILE_USUARIOS):
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
@@ -191,7 +208,7 @@ def tela_presenca_login():
     else:
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
 
-    # Carrega as presenças
+    # Carrega as presenças com tratamento para arquivos vazios
     if os.path.exists(FILE_PRESENCAS):
         try:
             presencas = pd.read_csv(FILE_PRESENCAS)
@@ -200,18 +217,11 @@ def tela_presenca_login():
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
-    # Inicializa estados
+    # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
-    if "login_sucesso" not in st.session_state:
-        st.session_state.login_sucesso = False
 
-    # Rerun após login bem-sucedido
-    if st.session_state.login_sucesso:
-        st.session_state.login_sucesso = False
-        st.experimental_rerun()
-
-    # Tela de login/cadastro
+    # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
@@ -225,7 +235,8 @@ def tela_presenca_login():
                     user = usuarios[(usuarios["Email"] == email) & (usuarios["Senha"] == senha)]
                     if not user.empty:
                         st.session_state.usuario_logado = user.iloc[0].to_dict()
-                        st.session_state.login_sucesso = True  # Aciona rerun no próximo ciclo
+                        st.success(f"Bem-vindo, {user.iloc[0]['Nome']}!")
+                        st.experimental_rerun()
                     else:
                         st.error("E-mail ou senha incorretos.")
 
@@ -265,6 +276,7 @@ def tela_presenca_login():
         if st.button("Sair"):
             st.session_state.usuario_logado = None
             st.experimental_rerun()
+
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
