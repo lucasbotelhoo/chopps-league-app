@@ -267,6 +267,73 @@ def tela_presenca_login():
             st.session_state.usuario_logado = None
             st.experimental_rerun()
 
+def tela_regras():
+    st.title("📜 Regras Oficiais – Chopp's League")
+
+    st.header("✅ 1. Confirmação de Presença")
+    st.markdown("""
+    - Os jogadores devem confirmar presença **até as 22h de quarta-feira**.
+    - Quem não confirmar no prazo **não poderá jogar**.
+    """)
+
+    st.header("⌛ 2. Tempo de Jogo e Rodízio")
+    st.markdown("""
+    - Cada partida terá duração de **7 minutos ou até 2 gols**, o que ocorrer primeiro.
+    - O **time que entra joga pelo empate**:
+        - Se empatar, o **time vencedor da partida anterior sai**.
+        - Se perder, o **time que entrou sai normalmente**.
+    """)
+
+    st.header("👕 3. Uniforme Obrigatório")
+    st.markdown("""
+    - É obrigatório comparecer com o uniforme padrão completo:
+        - Camisa do **Borussia Dortmund**
+        - Camisa da **Inter de Milão**
+        - **Calção preto**
+        - **Meião preto**
+    - Jogadores sem o uniforme completo **não poderão jogar**.
+    """)
+
+    st.header("💰 4. Mensalidade e Pagamento")
+    st.markdown("""
+    - A mensalidade deve ser paga **até o dia 10 de cada mês**.
+    - **Jogadores inadimplentes não poderão jogar até quitar sua dívida**.
+    - **Goleiros são isentos da mensalidade**, mas devem pagar **o uniforme**.
+    """)
+
+    st.header("💸 5. Contribuição para o Caixa")
+    st.markdown("""
+    - Todos os jogadores, incluindo goleiros, devem contribuir com **R$20,00 adicionais**.
+    - O valor será utilizado exclusivamente para:
+        - **Materiais esportivos** (bolas, coletes, etc.)
+        - **Itens médicos** (Gelol, faixa, esparadrapo, gelo, etc.)
+        - **Água**
+        - **Confraternizações** ou outras necessidades da pelada
+    """)
+
+    st.header("📅 6. Comprometimento")
+    st.markdown("""
+    - Ao confirmar presença, o jogador assume o compromisso de comparecer.
+    - **Faltas não justificadas** podem resultar em **suspensão da próxima rodada**.
+    """)
+
+    st.header("⚠️ 7. Comportamento")
+    st.markdown("""
+    - Discussões, brigas ou qualquer tipo de agressividade resultam em **suspensão automática da próxima rodada**.
+    - A **decisão final será dos gestores da pelada**, podendo haver punições maiores conforme a gravidade.
+    """)
+
+    st.header("🧤 8. Goleiros e Rodízio")
+    st.markdown("""
+    - Na ausência de goleiro fixo, haverá **rodízio entre os jogadores de linha** para cobrir o gol.
+    """)
+
+    st.header("🔐 9. Responsabilidade")
+    st.markdown("""
+    - Comprometimento com **pagamentos, presença e respeito** é essencial para manter a organização.
+    - **Quem não estiver em dia com os compromissos não joga.**
+    """)
+
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
@@ -276,7 +343,8 @@ with st.sidebar:
         "📊 Estatísticas da Partida",
         "👟 Estatísticas dos Jogadores",
         "🎲 Sorteio de Times",
-        "✅ Presença e Login",  # ADICIONAR ESTA LINHA
+        "✅ Presença e Login",
+        "📜 Regras da Pelada"
     ])
 
 # Controle de navegação
@@ -290,3 +358,5 @@ elif pagina == "🎲 Sorteio de Times":
     tela_sorteio()
 elif pagina == "✅ Presença e Login":
     tela_presenca_login()
+elif st.session_state.pagina == "📜 Regras da Pelada":
+    tela_regras()
