@@ -167,8 +167,8 @@ partidas, jogadores = load_data()
 # Carrega os usuários existentes ou cria um novo DataFrame
 
 # Arquivos de dados
-FILE_USUARIOS = "./usuarios/usuarios.csv"
-FILE_PRESENCAS = "./presenca/presenca.csv"
+FILE_USUARIOS = "../usuarios/usuarios.csv"
+FILE_PRESENCAS = "../presenca/presenca.csv"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
