@@ -168,8 +168,8 @@ partidas, jogadores = load_data()
 os.makedirs("usuarios", exist_ok=True)
 
 # Caminhos dos arquivos (dentro da pasta criada)
-FILE_USUARIOS = "usuarios/cadastro.csv"
-FILE_PRESENCAS = "usuarios/presenca.csv"
+FILE_USUARIOS = "cadastro.csv"
+FILE_PRESENCAS = "presenca.csv"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
@@ -185,7 +185,6 @@ def tela_presenca_login():
         presencas = pd.read_csv(FILE_PRESENCAS)
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
-
 
     # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
