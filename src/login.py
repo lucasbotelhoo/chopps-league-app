@@ -1,13 +1,11 @@
 import streamlit as st
 import re
 
-# Função de formatação
 def formatar_telefone_9fixo(numero):
     if len(numero) == 11:
         return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
     return numero
 
-# Tela de login/cadastro
 def tela_login():
     st.set_page_config(page_title="Login", page_icon="🔐")
     st.title("Acesso ao Sistema")
@@ -65,9 +63,8 @@ def tela_login():
                     st.session_state["usuario_logado"] = True
                     st.session_state["nome"] = cadastro.get("nome")
                     st.success("Login realizado com sucesso!")
-                    st.switch_page("pages/main.py")
+                    st.switch_page("main")  # <- aqui está o ajuste
                 else:
                     st.warning("E-mail ou senha incorretos.")
 
-# Executa a tela
 tela_login()
