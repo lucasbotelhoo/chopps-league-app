@@ -349,7 +349,7 @@ with st.sidebar:
 
 # Controle de navegação
 if pagina == "🏠 Tela Principal":
-    tela_principal(partidas)
+    tela_principal(partidas, jogadores)
 elif pagina == "📊 Estatísticas da Partida":
     partidas = tela_partida(partidas)
 elif pagina == "👟 Estatísticas dos Jogadores":
