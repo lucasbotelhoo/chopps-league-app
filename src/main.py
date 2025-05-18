@@ -150,27 +150,6 @@ def tela_jogadores(jogadores):
     return jogadores
 
 # Tela para sorteio dos times
-def tela_sorteio():
-    st.title("Sorteio de Times")
-
-    jogadores_lista = [
-        "Matheus Moreira", "José Moreira", "Lucas", "Alex", "Gustavo",
-        "Lula", "Juninho", "Jesus", "Gabriel", "Arthur",
-        "Walter", "Eduardo", "Cristian", "Luciano", "Deivid"
-    ]
-
-    if st.button("Sortear times"):
-        random.shuffle(jogadores_lista)
-        time1 = jogadores_lista[:len(jogadores_lista)//2]
-        time2 = jogadores_lista[len(jogadores_lista)//2:]
-        st.write("**Time 1 (Borrusia):**")
-        for jogador in time1:
-            st.write("- " + jogador)
-        st.write("**Time 2:**")
-        for jogador in time2:
-            st.write("- " + jogador)
-
-# Tela de cadastro e login
 import streamlit as st
 import re
 
@@ -181,12 +160,9 @@ def formatar_telefone(telefone):
     if len(numeros) <= 2:
         return "(" + numeros
     if len(numeros) <= 6:
-        # Ex: (11) 9 ou (11) 9123
         return f"({numeros[:2]}) {numeros[2:]}"
     if len(numeros) <= 10:
-        # Ex: (11) 9123-4567
         return f"({numeros[:2]}) {numeros[2:6]}-{numeros[6:]}"
-    # 11 dígitos completo (11) 9 1234-5678, coloca espaço entre 3º e 4º dígitos do número
     return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
 
 def tela_presenca_login():
@@ -215,7 +191,6 @@ def tela_presenca_login():
                 numeros = re.sub(r'\D', '', telefone_input)
                 telefone_formatado = formatar_telefone(numeros)
 
-                # Atualiza valor no estado com a máscara
                 if telefone_formatado != st.session_state.get("telefone_raw", ""):
                     st.session_state["telefone_raw"] = telefone_formatado
                     st.experimental_rerun()
@@ -252,8 +227,15 @@ def tela_presenca_login():
             st.session_state["usuario_logado"] = False
             st.experimental_rerun()
 
-if __name__ == "__main__":
-    tela_presenca_login()
+def tela_regras():
+    st.markdown(
+        """
+        <h1 style="font-size:32px; white-space: nowrap; overflow-x: auto; margin-bottom: 0.5em;">
+            📜 Regras Oficiais – Chopp's League
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
 
 def tela_regras():
     # Título principal maior, não quebra linha
