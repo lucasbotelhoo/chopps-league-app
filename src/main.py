@@ -320,7 +320,7 @@ def tela_regras():
     st.header("⚠️ 7. Comportamento")
     st.markdown("""
     - Discussões, brigas ou qualquer tipo de agressividade resultam em **suspensão automática da próxima rodada**.
-    - A **decisão final será dos gestores da pelada**, podendo haver punições maiores conforme a gravidade.
+    - Em caso de reincidência, o jogador poderá ser **banido temporariamente ou definitivamente**, conforme decisão do grupo.
     """)
 
     st.header("🧤 8. Goleiros e Rodízio")
