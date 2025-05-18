@@ -153,17 +153,31 @@ def tela_jogadores(jogadores):
 import streamlit as st
 import re
 
-def formatar_telefone(telefone):
-    numeros = re.sub(r'\D', '', telefone)[:11]
+def formatar_telefone_9fixo(telefone):
+    # Remove tudo que não for número
+    numeros = re.sub(r'\D', '', telefone)
+    # Limitando para máximo 11 dígitos (DD + 9 + 8 números)
+    numeros = numeros[:11]
+
     if len(numeros) == 0:
         return ""
-    if len(numeros) <= 2:
-        return "(" + numeros
-    if len(numeros) <= 6:
-        return f"({numeros[:2]}) {numeros[2:]}"
-    if len(numeros) <= 10:
-        return f"({numeros[:2]}) {numeros[2:6]}-{numeros[6:]}"
-    return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
+    # Sempre forçar o terceiro dígito como 9
+    # Se o usuário digitar algo diferente de 9 nessa posição, forçamos 9
+    if len(numeros) >= 3 and numeros[2] != '9':
+        numeros = numeros[:2] + '9' + numeros[3:]
+
+    if len(numeros) == 1:
+        return f"({numeros}"
+    elif len(numeros) == 2:
+        return f"({numeros}) "
+    elif len(numeros) == 3:
+        return f"({numeros[:2]}) {numeros[2]}"
+    elif 4 <= len(numeros) <= 6:
+        return f"({numeros[:2]}) {numeros[2]} {numeros[3:]}"
+    elif 7 <= len(numeros) <= 10:
+        return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:]}"
+    else:
+        return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
@@ -182,15 +196,23 @@ def tela_presenca_login():
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
 
+                # Campo de telefone
                 telefone_input = st.text_input(
                     "Número de telefone",
                     value=st.session_state.get("telefone_raw", ""),
                     key="telefone_input"
                 )
 
+                # Filtra e formata
                 numeros = re.sub(r'\D', '', telefone_input)
-                telefone_formatado = formatar_telefone(numeros)
 
+                # Força o 9 fixo na 3ª posição se tiver pelo menos 3 dígitos
+                if len(numeros) >= 3 and numeros[2] != '9':
+                    numeros = numeros[:2] + '9' + numeros[3:]
+
+                telefone_formatado = formatar_telefone_9fixo(numeros)
+
+                # Atualiza o estado e recarrega se mudou
                 if telefone_formatado != st.session_state.get("telefone_raw", ""):
                     st.session_state["telefone_raw"] = telefone_formatado
                     st.experimental_rerun()
@@ -198,8 +220,9 @@ def tela_presenca_login():
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    if len(numeros) not in [10, 11]:
-                        st.warning("Número de telefone inválido. Deve conter DDD + número completo (10 ou 11 dígitos).")
+                    # Verifica se tem exatamente 11 dígitos
+                    if len(numeros) != 11:
+                        st.warning("Número de telefone inválido. Deve conter DDD + 9 + número completo (11 dígitos).")
                     elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
                         st.warning("Preencha todos os campos.")
                     else:
@@ -226,6 +249,10 @@ def tela_presenca_login():
         if st.button("Logout"):
             st.session_state["usuario_logado"] = False
             st.experimental_rerun()
+
+
+if __name__ == "__main__":
+    tela_presenca_login()
 
 def tela_regras():
     st.markdown(
