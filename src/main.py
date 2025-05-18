@@ -14,7 +14,7 @@ FILE_JOGADORES = "jogadores.csv"
 def init_data():
     if not os.path.exists(FILE_PARTIDAS):
         df = pd.DataFrame(columns=[
-            "Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"
+            "Data", "Time 1", "Time 2"
         ])
         df.to_csv(FILE_PARTIDAS, index=False)
 
@@ -175,9 +175,53 @@ with st.sidebar:
         "🎲 Sorteio de Times"
     ])
 
+# Carrega os usuários existentes ou cria um novo DataFrame
+FILE_USUARIOS = "./usuarios/usuarios.csv"
+def carregar_usuarios():
+    if os.path.exists(FILE_USUARIOS):
+        return pd.read_csv(FILE_USUARIOS)
+    else:
+        return pd.DataFrame(columns=["Nome", "Email", "Senha"])
+
+def salvar_usuarios(df):
+    df.to_csv(FILE_USUARIOS, index=False)
+
+def tela_cadastro():
+    st.title("Cadastro de Usuário")
+
+    usuarios = carregar_usuarios()
+
+    with st.form("form_cadastro_usuario", clear_on_submit=True):
+        nome = st.text_input("Nome completo")
+        email = st.text_input("E-mail")
+        senha = st.text_input("Senha", type="password")
+
+        submit = st.form_submit_button("Cadastrar")
+
+        if submit:
+            # Validação simples
+            if not nome.strip() or not email.strip() or not senha.strip():
+                st.warning("Todos os campos são obrigatórios.")
+            elif email in usuarios["Email"].values:
+                st.warning("E-mail já cadastrado. Use outro.")
+            else:
+                novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
+                usuarios = usuarios.append(novo_usuario, ignore_index=True)
+                salvar_usuarios(usuarios)
+                st.success(f"Usuário {nome} cadastrado com sucesso!")
+
+    st.write("Usuários cadastrados:")
+    st.dataframe(usuarios[["Nome", "Email"]])  # Não mostrar senha
+
+# Para rodar diretamente (opcional)
+if __name__ == "__main__":
+    tela_cadastro()
+
 # Controle de navegação
 if pagina == "🏠 Tela Principal":
-    tela_principal(partidas, jogadores)
+    tela_principal(partidas)
+elif pagina == "Cadastro de Usuário":
+    usuarios = tela_cadastro("Confirmar Presença")
 elif pagina == "📊 Estatísticas da Partida":
     partidas = tela_partida(partidas)
 elif pagina == "👟 Estatísticas dos Jogadores":
