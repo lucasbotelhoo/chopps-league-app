@@ -164,17 +164,6 @@ def tela_sorteio():
 init_data()
 partidas, jogadores = load_data()
 
-# Menu lateral para navegação
-with st.sidebar:
-    image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-    st.image(image, caption="Chopp's League", use_container_width =True)
-    pagina = st.selectbox("Navegue pelo app:", [
-        "🏠 Tela Principal",
-        "📊 Estatísticas da Partida",
-        "👟 Estatísticas dos Jogadores",
-        "🎲 Sorteio de Times"
-    ])
-
 # Carrega os usuários existentes ou cria um novo DataFrame
 FILE_USUARIOS = "./usuarios/usuarios.csv"
 def carregar_usuarios():
@@ -216,6 +205,18 @@ def tela_cadastro():
 # Para rodar diretamente (opcional)
 if __name__ == "__main__":
     tela_cadastro()
+
+# Menu lateral para navegação
+with st.sidebar:
+    image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    st.image(image, caption="Chopp's League", use_container_width =True)
+    pagina = st.selectbox("Navegue pelo app:", [
+        "🏠 Tela Principal",
+        "📊 Estatísticas da Partida",
+        "👟 Estatísticas dos Jogadores",
+        "🎲 Sorteio de Times",
+        "Confirmar Presença"
+    ])
 
 # Controle de navegação
 if pagina == "🏠 Tela Principal":
