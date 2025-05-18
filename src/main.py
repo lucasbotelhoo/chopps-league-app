@@ -36,77 +36,42 @@ def save_data(partidas, jogadores):
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
 # Tela Principal com gráficos simples e indicadores
-def tela_principal(partidas, jogadores):
-    st.title("Chopp's League")
-
-    st.markdown("Bem-vindo à pelada entre amigos!")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        image = Image.open("./imagens/borrusia_escudo.jpg")
-        st.image(image, caption="Borrusia",  use_container_width =True)
-
-    with col2:
-        image = Image.open("./imagens/inter_escudo.jpg")
-        st.image(image, caption="Inter",  use_container_width =True)
-
-    st.header("Resumo das Partidas")
-    st.write(f"Total de partidas registradas: {len(partidas)}")
-    if not partidas.empty:
-        st.write("Última partida registrada:")
-        st.write(partidas.tail(1))
-
-    st.header("Resumo dos Jogadores")
-    st.write(f"Total de jogadores registrados: {len(jogadores)}")
-    if not jogadores.empty:
-        gols_totais = jogadores["Gols"].sum()
-        st.write(f"Gols totais: {gols_totais}")
-
-    # Exemplo gráfico simples - gols por jogador
-    if not jogadores.empty:
-        gols_por_jogador = jogadores.groupby("Nome")["Gols"].sum().sort_values(ascending=False)
-        st.bar_chart(gols_por_jogador)
-
-# Tela para registrar estatísticas da partida
-# Caminho para o CSV
-PASTA_PARTIDAS = "partidas"
-FILE_PARTIDAS = os.path.join(PASTA_PARTIDAS, "estatisticas_partidas.csv")
-os.makedirs(PASTA_PARTIDAS, exist_ok=True)
-
-def tela_partida(partidas=None):
-    st.title("Registrar Estatísticas da Partida")
-
-    # Carrega os dados das partidas, tratando arquivos vazios
+# Carrega as partidas
+def carregar_partidas():
     if os.path.exists(FILE_PARTIDAS):
         try:
-            partidas = pd.read_csv(FILE_PARTIDAS)
+            return pd.read_csv(FILE_PARTIDAS)
         except pd.errors.EmptyDataError:
-            partidas = pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+            return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
     else:
-        partidas = pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+        return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+
+# Chamada correta
+partidas = carregar_partidas()
+
+# Tela para registrar estatísticas da partida
+def tela_partida(partidas):
+    st.title("Registrar Estatísticas da Partida")
 
     with st.form("form_partida", clear_on_submit=True):
         data = st.date_input("Data da partida")
         partidadisputada = st.number_input("Partida Disputada", min_value=0, step=1)
-        time1 = st.selectbox("Borussia", ["1", "2"])
+        time1 = st.selectbox("Borrusia", ["1", "2"])
         time2 = st.selectbox("Inter de Milão", ["1", "2"])
+        # time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
 
         submit = st.form_submit_button("Registrar")
 
         if submit:
-            if time1 == time2:
-                st.warning("Os times não podem ser iguais.")
-            else:
-                nova_partida = {
-                    "Data": data,
-                    "Partida": partidadisputada,
-                    "Borussia": time1,
-                    "Inter de Milão": time2,
-                }
-                partidas = pd.concat([partidas, pd.DataFrame([nova_partida])], ignore_index=True)
-                partidas.to_csv(FILE_PARTIDAS, index=False)
-                st.success("Partida registrada com sucesso!")
+            nova_partida = {
+                "Data": data,
+                "Partida": partidadisputada,
+                "Borussia": time1,
+                "Inter de Milão": time2,
+            }
+            partidas = partidas.append(nova_partida, ignore_index=True)
+            partidas.to_csv(FILE_PARTIDAS, index=False)
+            st.success("Partida registrada com sucesso!")
 
     st.write("Partidas registradas:")
     st.dataframe(partidas)
