@@ -154,15 +154,11 @@ import streamlit as st
 import re
 
 def formatar_telefone_9fixo(telefone):
-    # Remove tudo que não for número
     numeros = re.sub(r'\D', '', telefone)
-    # Limitando para máximo 11 dígitos (DD + 9 + 8 números)
     numeros = numeros[:11]
 
     if len(numeros) == 0:
         return ""
-    # Sempre forçar o terceiro dígito como 9
-    # Se o usuário digitar algo diferente de 9 nessa posição, forçamos 9
     if len(numeros) >= 3 and numeros[2] != '9':
         numeros = numeros[:2] + '9' + numeros[3:]
 
@@ -196,23 +192,19 @@ def tela_presenca_login():
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
 
-                # Campo de telefone
                 telefone_input = st.text_input(
                     "Número de telefone",
                     value=st.session_state.get("telefone_raw", ""),
                     key="telefone_input"
                 )
 
-                # Filtra e formata
                 numeros = re.sub(r'\D', '', telefone_input)
 
-                # Força o 9 fixo na 3ª posição se tiver pelo menos 3 dígitos
                 if len(numeros) >= 3 and numeros[2] != '9':
                     numeros = numeros[:2] + '9' + numeros[3:]
 
                 telefone_formatado = formatar_telefone_9fixo(numeros)
 
-                # Atualiza o estado e recarrega se mudou
                 if telefone_formatado != st.session_state.get("telefone_raw", ""):
                     st.session_state["telefone_raw"] = telefone_formatado
                     st.experimental_rerun()
@@ -220,7 +212,6 @@ def tela_presenca_login():
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    # Verifica se tem exatamente 11 dígitos
                     if len(numeros) != 11:
                         st.warning("Número de telefone inválido. Deve conter DDD + 9 + número completo (11 dígitos).")
                     elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
@@ -240,29 +231,12 @@ def tela_presenca_login():
                         st.success(f"Usuário {email_login} logado com sucesso!")
                     else:
                         st.warning("Preencha email e senha para login.")
-
     else:
         st.write("Usuário já está logado!")
         if st.button("Confirmar Presença"):
             st.success("Presença confirmada. Obrigado!")
 
         if st.button("Logout"):
-            st.session_state["usuario_logado"] = False
-            st.experimental_rerun()
-
-
-if __name__ == "__main__":
-    tela_presenca_login()
-
-def tela_regras():
-    st.markdown(
-        """
-        <h1 style="font-size:32px; white-space: nowrap; overflow-x: auto; margin-bottom: 0.5em;">
-            📜 Regras Oficiais – Chopp's League
-        </h1>
-        """,
-        unsafe_allow_html=True
-    )
 
 def tela_regras():
     # Título principal maior, não quebra linha
