@@ -173,7 +173,7 @@ FILE_PRESENCAS = "../presenca/presencas.csv"
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Inicializa os dados
+    # Carrega os dados
     if os.path.exists(FILE_USUARIOS):
         usuarios = pd.read_csv(FILE_USUARIOS)
     else:
@@ -184,6 +184,7 @@ def tela_presenca_login():
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
+    # Inicializa estado
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
 
@@ -219,7 +220,7 @@ def tela_presenca_login():
                         st.warning("Este e-mail já está cadastrado.")
                     else:
                         novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
-                        usuarios = usuarios.append(novo_usuario, ignore_index=True)
+                        usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
 
@@ -232,7 +233,7 @@ def tela_presenca_login():
         else:
             if st.button("Confirmar Presença"):
                 nova_presenca = {"Nome": usuario["Nome"], "Email": usuario["Email"]}
-                presencas = presencas.append(nova_presenca, ignore_index=True)
+                presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
                 presencas.to_csv(FILE_PRESENCAS, index=False)
                 st.success("Presença confirmada com sucesso!")
 
