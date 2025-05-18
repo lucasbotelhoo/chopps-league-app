@@ -182,17 +182,23 @@ FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados dos usuários
-    if os.path.exists(FILE_USUARIOS):
+# Carrega os dados dos usuários
+if os.path.exists(FILE_USUARIOS):
+    try:
         usuarios = pd.read_csv(FILE_USUARIOS)
-    else:
+    except pd.errors.EmptyDataError:
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+else:
+    usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
 
-    # Carrega as presenças
-    if os.path.exists(FILE_PRESENCAS):
+# Carrega as presenças
+if os.path.exists(FILE_PRESENCAS):
+    try:
         presencas = pd.read_csv(FILE_PRESENCAS)
-    else:
+    except pd.errors.EmptyDataError:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
+else:
+    presencas = pd.DataFrame(columns=["Nome", "Email"])
 
     # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
