@@ -165,67 +165,101 @@ init_data()
 partidas, jogadores = load_data()
 
 # Carrega os usuários existentes ou cria um novo DataFrame
-FILE_USUARIOS = "./usuarios/usuarios.csv"
-def carregar_usuarios():
+
+# Arquivos de dados
+FILE_USUARIOS = "usuarios.csv"
+FILE_PRESENCAS = "presencas.csv"
+
+def tela_presenca_login():
+    st.title("Cadastro, Login e Confirmação de Presença")
+
+    # Inicializa os dados
     if os.path.exists(FILE_USUARIOS):
-        return pd.read_csv(FILE_USUARIOS)
+        usuarios = pd.read_csv(FILE_USUARIOS)
     else:
-        return pd.DataFrame(columns=["Nome", "Email", "Senha"])
+        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
 
-def salvar_usuarios(df):
-    df.to_csv(FILE_USUARIOS, index=False)
+    if os.path.exists(FILE_PRESENCAS):
+        presencas = pd.read_csv(FILE_PRESENCAS)
+    else:
+        presencas = pd.DataFrame(columns=["Nome", "Email"])
 
-def tela_cadastro():
-    st.title("Cadastro de Usuário")
+    if "usuario_logado" not in st.session_state:
+        st.session_state.usuario_logado = None
 
-    usuarios = carregar_usuarios()
+    if not st.session_state.usuario_logado:
+        aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
-    with st.form("form_cadastro_usuario", clear_on_submit=True):
-        nome = st.text_input("Nome completo")
-        email = st.text_input("E-mail")
-        senha = st.text_input("Senha", type="password")
+        if aba == "🔐 Login":
+            with st.form("form_login"):
+                email = st.text_input("E-mail")
+                senha = st.text_input("Senha", type="password")
+                login = st.form_submit_button("Entrar")
 
-        submit = st.form_submit_button("Cadastrar")
+                if login:
+                    user = usuarios[(usuarios["Email"] == email) & (usuarios["Senha"] == senha)]
+                    if not user.empty:
+                        st.session_state.usuario_logado = user.iloc[0].to_dict()
+                        st.success(f"Bem-vindo, {user.iloc[0]['Nome']}!")
+                        st.experimental_rerun()
+                    else:
+                        st.error("E-mail ou senha incorretos.")
 
-        if submit:
-            # Validação simples
-            if not nome.strip() or not email.strip() or not senha.strip():
-                st.warning("Todos os campos são obrigatórios.")
-            elif email in usuarios["Email"].values:
-                st.warning("E-mail já cadastrado. Use outro.")
-            else:
-                novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
-                usuarios = usuarios.append(novo_usuario, ignore_index=True)
-                salvar_usuarios(usuarios)
-                st.success(f"Usuário {nome} cadastrado com sucesso!")
+        elif aba == "📝 Cadastro":
+            with st.form("form_cadastro", clear_on_submit=True):
+                nome = st.text_input("Nome completo")
+                email = st.text_input("E-mail")
+                senha = st.text_input("Senha", type="password")
+                submit = st.form_submit_button("Cadastrar")
 
-    st.write("Usuários cadastrados:")
-    st.dataframe(usuarios[["Nome", "Email"]])  # Não mostrar senha
+                if submit:
+                    if not nome or not email or not senha:
+                        st.warning("Preencha todos os campos.")
+                    elif email in usuarios["Email"].values:
+                        st.warning("Este e-mail já está cadastrado.")
+                    else:
+                        novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
+                        usuarios = usuarios.append(novo_usuario, ignore_index=True)
+                        usuarios.to_csv(FILE_USUARIOS, index=False)
+                        st.success("Cadastro realizado! Faça login para confirmar presença.")
 
-# Para rodar diretamente (opcional)
-if __name__ == "__main__":
-    tela_cadastro()
+    else:
+        usuario = st.session_state.usuario_logado
+        st.success(f"Logado como: {usuario['Nome']} ({usuario['Email']})")
+
+        if usuario["Email"] in presencas["Email"].values:
+            st.info("✅ Presença já confirmada.")
+        else:
+            if st.button("Confirmar Presença"):
+                nova_presenca = {"Nome": usuario["Nome"], "Email": usuario["Email"]}
+                presencas = presencas.append(nova_presenca, ignore_index=True)
+                presencas.to_csv(FILE_PRESENCAS, index=False)
+                st.success("Presença confirmada com sucesso!")
+
+        if st.button("Sair"):
+            st.session_state.usuario_logado = None
+            st.experimental_rerun()
 
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
     st.image(image, caption="Chopp's League", use_container_width =True)
-    pagina = st.selectbox("Navegue pelo app:", [
-        "🏠 Tela Principal",
-        "📊 Estatísticas da Partida",
-        "👟 Estatísticas dos Jogadores",
-        "🎲 Sorteio de Times",
-        "Confirmar Presença"
-    ])
+pagina = st.selectbox("Navegue pelo app:", [
+    "🏠 Tela Principal",
+    "📊 Estatísticas da Partida",
+    "👟 Estatísticas dos Jogadores",
+    "🎲 Sorteio de Times",
+    "✅ Presença e Login",  # ADICIONAR ESTA LINHA
+])
 
 # Controle de navegação
 if pagina == "🏠 Tela Principal":
     tela_principal(partidas)
-elif pagina == "Cadastro de Usuário":
-    usuarios = tela_cadastro("Confirmar Presença")
 elif pagina == "📊 Estatísticas da Partida":
     partidas = tela_partida(partidas)
 elif pagina == "👟 Estatísticas dos Jogadores":
     jogadores = tela_jogadores(jogadores)
 elif pagina == "🎲 Sorteio de Times":
     tela_sorteio()
+elif pagina == "✅ Presença e Login":
+    tela_presenca_login()
