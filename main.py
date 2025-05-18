@@ -38,7 +38,7 @@ def save_data(partidas, jogadores):
 
 #Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
-    st.title("Chopp's League")
+    st.title("Chopp's LeagueTESTE")
 
     st.markdown("Bem-vindo à pelada entre amigos!")
 
