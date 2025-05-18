@@ -50,6 +50,22 @@ def carregar_partidas():
 partidas = carregar_partidas()
 
 # Tela para registrar estatísticas da partida
+# Configurações de caminho
+PASTA_PARTIDAS = "partidas"
+FILE_PARTIDAS = os.path.join(PASTA_PARTIDAS, "estatisticas_partidas.csv")
+os.makedirs(PASTA_PARTIDAS, exist_ok=True)
+
+# Função para carregar partidas (trata arquivo vazio ou inexistente)
+def carregar_partidas():
+    if os.path.exists(FILE_PARTIDAS):
+        try:
+            return pd.read_csv(FILE_PARTIDAS)
+        except pd.errors.EmptyDataError:
+            return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+    else:
+        return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+
+# Função para registrar partidas
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
@@ -72,12 +88,33 @@ def tela_partida(partidas):
                     "Inter de Milão": time2
                 }
                 partidas = pd.concat([partidas, pd.DataFrame([nova_partida])], ignore_index=True)
+                partidas.to_csv(FILE_PARTIDAS, index=False)
                 st.success("Partida registrada com sucesso!")
 
     st.write("Partidas registradas:")
     st.dataframe(partidas)
 
     return partidas
+
+# Função para mostrar resumo das partidas (exemplo simples)
+def tela_principal(partidas):
+    st.title("Chopp's League - Resumo das Partidas")
+    st.write(f"Total de partidas registradas: {len(partidas)}")
+
+    if not partidas.empty:
+        st.write("Última partida registrada:")
+        st.write(partidas.tail(1))
+
+# --- Programa principal ---
+
+# Carrega as partidas antes de usar
+partidas = carregar_partidas()
+
+# Tela para cadastrar partidas
+partidas = tela_partida(partidas)
+
+# Tela principal com resumo
+tela_principal(partidas)
 
 # Tela para registrar estatísticas dos jogadores
 def tela_jogadores(jogadores):
