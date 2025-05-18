@@ -7,6 +7,23 @@ import random
 import os
 import re
 
+# Tela inicial obrigatória
+if not st.session_state.get("usuario_logado", False):
+    tela_login_e_cadastro()
+else:
+    # Aqui vai sua lógica de navegação principal
+    st.sidebar.title("Navegação")
+    tela = st.sidebar.selectbox("Ir para:", ["Início", "Registrar Partida", "Registrar Jogador", "Confirmar Presença"])
+    
+    if tela == "Início":
+        tela_principal(partidas, jogadores)
+    elif tela == "Registrar Partida":
+        partidas = tela_partida(partidas)
+    elif tela == "Registrar Jogador":
+        jogadores = tela_jogadores(jogadores)
+    elif tela == "Confirmar Presença":
+        tela_confirmar_presenca()
+        
 def tela_login_e_cadastro():
     st.title("Acesso ao Sistema")
 
