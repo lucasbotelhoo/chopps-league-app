@@ -194,9 +194,9 @@ def tela_presenca_login():
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
         except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posicao", "Nascimento", "Telefone"])
+            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "DataNascimento", "Telefone"])
     else:
-        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posicao", "Nascimento", "Telefone"])
+        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "DataNascimento", "Telefone"])
 
     # Carrega as presenças com tratamento para arquivos vazios
     if os.path.exists(FILE_PRESENCAS):
@@ -235,13 +235,15 @@ def tela_presenca_login():
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
-                posicao = st.selectbox("Posição que joga", ["Linha", "Goleiro"])
+                posicao = st.selectbox("Posição", ["Linha", "Gol"])
                 nascimento = st.date_input("Data de nascimento")
+                st.write("Data selecionada:", nascimento.strftime("%d/%m/%Y"))
                 telefone = st.text_input("Número de telefone")
+
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    # Validação campos obrigatórios
+                    # Campos obrigatórios
                     if not nome or not email or not senha or not posicao or not nascimento or not telefone:
                         st.warning("Preencha todos os campos.")
                     elif email in usuarios["Email"].values:
@@ -251,8 +253,8 @@ def tela_presenca_login():
                             "Nome": nome,
                             "Email": email,
                             "Senha": senha,
-                            "Posicao": posicao,
-                            "Nascimento": nascimento.strftime("%d/%m/%Y"),  # Formato DD/MM/AAAA
+                            "Posição": posicao,
+                            "DataNascimento": nascimento.strftime("%d/%m/%Y"),  # formato dia/mês/ano
                             "Telefone": telefone
                         }
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
