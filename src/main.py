@@ -150,31 +150,14 @@ def tela_jogadores(jogadores):
     return jogadores
 
 # Tela para sorteio dos times
-import streamlit as st
-import re
 
-def formatar_telefone_9fixo(telefone):
-    numeros = re.sub(r'\D', '', telefone)
-    numeros = numeros[:11]
+# Função para formatar telefone com nono dígito fixo
+def formatar_telefone_9fixo(numero):
+    if len(numero) == 11:
+        return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
+    return numero
 
-    if len(numeros) == 0:
-        return ""
-    if len(numeros) >= 3 and numeros[2] != '9':
-        numeros = numeros[:2] + '9' + numeros[3:]
-
-    if len(numeros) == 1:
-        return f"({numeros}"
-    elif len(numeros) == 2:
-        return f"({numeros}) "
-    elif len(numeros) == 3:
-        return f"({numeros[:2]}) {numeros[2]}"
-    elif 4 <= len(numeros) <= 6:
-        return f"({numeros[:2]}) {numeros[2]} {numeros[3:]}"
-    elif 7 <= len(numeros) <= 10:
-        return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:]}"
-    else:
-        return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
-
+# Tela de cadastro e login
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
@@ -185,29 +168,31 @@ def tela_presenca_login():
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
         if aba == "📝 Cadastro":
+            # Input de telefone fora do formulário para evitar erro com rerun
+            telefone_input = st.text_input(
+                "Número de telefone",
+                value=st.session_state.get("telefone_raw", ""),
+                key="telefone_input"
+            )
+
+            numeros = re.sub(r'\D', '', telefone_input)
+
+            if len(numeros) >= 3 and numeros[2] != '9':
+                numeros = numeros[:2] + '9' + numeros[3:]
+
+            telefone_formatado = formatar_telefone_9fixo(numeros)
+
+            if telefone_formatado != st.session_state.get("telefone_raw", ""):
+                st.session_state["telefone_raw"] = telefone_formatado
+                st.experimental_rerun()
+
+            # Formulário de cadastro
             with st.form("form_cadastro", clear_on_submit=True):
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
-
-                telefone_input = st.text_input(
-                    "Número de telefone",
-                    value=st.session_state.get("telefone_raw", ""),
-                    key="telefone_input"
-                )
-
-                numeros = re.sub(r'\D', '', telefone_input)
-
-                if len(numeros) >= 3 and numeros[2] != '9':
-                    numeros = numeros[:2] + '9' + numeros[3:]
-
-                telefone_formatado = formatar_telefone_9fixo(numeros)
-
-                if telefone_formatado != st.session_state.get("telefone_raw", ""):
-                    st.session_state["telefone_raw"] = telefone_formatado
-                    st.experimental_rerun()
 
                 submit = st.form_submit_button("Cadastrar")
 
@@ -287,7 +272,7 @@ def tela_regras():
     st.markdown("""
     - Todos os jogadores, incluindo goleiros, devem contribuir com **R$20,00 adicionais**.
     - O valor será utilizado exclusivamente para:
-        - **Materiais esportivos** (bolas, coletes, etc.)
+        - **Materiais esportivos** (bolas, bomba de encher bola, etc.)
         - **Itens médicos** (Gelol, faixa, esparadrapo, gelo, etc.)
         - **Água**
         - **Confraternizações** ou outras necessidades da pelada
@@ -302,7 +287,7 @@ def tela_regras():
     subtitulo("⚠️ 7. Comportamento")
     st.markdown("""
     - Discussões, brigas ou qualquer tipo de agressividade resultam em **suspensão automática da próxima rodada**.
-    - Em caso de reincidência, o jogador poderá ser **banido temporariamente ou definitivamente**, conforme decisão do grupo.
+    - Em caso de reincidência, o jogador poderá ser **banido temporariamente ou definitivamente**, conforme decisão da gestão.
     """)
 
     subtitulo("🧤 8. Goleiros e Rodízio")
@@ -325,7 +310,7 @@ def tela_regras():
     - A votação é **exclusiva para quem confirmou presença e jogou na pelada**.
     - Somente jogadores presentes poderão votar.
     - A finalidade é **uma brincadeira para animar o grupo e fortalecer o espírito da pelada**.
-    - Os resultados serão divulgados para descontração e reconhecimento entre os participantes.
+    - Os resultados serão divulgados para descontração na tela 'Avaliação pós-jogo'.
     """)
 
 # Menu lateral para navegação
