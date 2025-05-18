@@ -35,6 +35,39 @@ def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
+    # Tela Principal com gráficos simples e indicadores
+def tela_principal(partidas, jogadores):
+    st.title("Chopp's League")
+
+    st.markdown("Bem-vindo à pelada entre amigos!")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        image = Image.open("./imagens/borrusia_escudo.jpg")
+        st.image(image, caption="Borrusia",  use_container_width =True)
+
+    with col2:
+        image = Image.open("./imagens/inter_escudo.jpg")
+        st.image(image, caption="Inter",  use_container_width =True)
+
+    st.header("Resumo das Partidas")
+    st.write(f"Total de partidas registradas: {len(partidas)}")
+    if not partidas.empty:
+        st.write("Última partida registrada:")
+        st.write(partidas.tail(1))
+
+    st.header("Resumo dos Jogadores")
+    st.write(f"Total de jogadores registrados: {len(jogadores)}")
+    if not jogadores.empty:
+        gols_totais = jogadores["Gols"].sum()
+        st.write(f"Gols totais: {gols_totais}")
+
+    # Exemplo gráfico simples - gols por jogador
+    if not jogadores.empty:
+        gols_por_jogador = jogadores.groupby("Nome")["Gols"].sum().sort_values(ascending=False)
+        st.bar_chart(gols_por_jogador)
+
 # Tela para registrar estatísticas da partida
 # Configurações de caminho
 PASTA_PARTIDAS = "partidas"
