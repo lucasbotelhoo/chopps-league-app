@@ -84,7 +84,10 @@ def load_data_safe():
 # Carrega os dados antes de chamar tela_principal
 partidas, jogadores = load_data_safe()
 
-# Tela para registrar estatísticas da partida
+# Chama a tela principal com os dois argumentos obrigatórios
+tela_principal(partidas, jogadores)
+
+#Tela para registrar estatísticas da partida
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
