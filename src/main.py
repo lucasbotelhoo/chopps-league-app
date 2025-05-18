@@ -244,13 +244,13 @@ def tela_presenca_login():
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
     st.image(image, caption="Chopp's League", use_container_width =True)
-pagina = st.selectbox("Navegue pelo app:", [
-    "🏠 Tela Principal",
-    "📊 Estatísticas da Partida",
-    "👟 Estatísticas dos Jogadores",
-    "🎲 Sorteio de Times",
-    "✅ Presença e Login",  # ADICIONAR ESTA LINHA
-])
+    pagina = st.selectbox("Navegue pelo app:", [
+        "🏠 Tela Principal",
+        "📊 Estatísticas da Partida",
+        "👟 Estatísticas dos Jogadores",
+        "🎲 Sorteio de Times",
+        "✅ Presença e Login",  # ADICIONAR ESTA LINHA
+    ])
 
 # Controle de navegação
 if pagina == "🏠 Tela Principal":
