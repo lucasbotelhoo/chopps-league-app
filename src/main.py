@@ -189,6 +189,7 @@ FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 import streamlit as st
 import pandas as pd
 import os
+import re
 
 FILE_USUARIOS = "usuarios.csv"
 FILE_PRESENCAS = "presencas.csv"
