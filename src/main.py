@@ -252,7 +252,7 @@ def tela_presenca_login():
                             "Email": email,
                             "Senha": senha,
                             "Posicao": posicao,
-                            "Nascimento": nascimento.strftime("%Y-%m-%d"),
+                            "Nascimento": nascimento.strftime("%d/%m/%Y"),
                             "Telefone": telefone
                         }
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
