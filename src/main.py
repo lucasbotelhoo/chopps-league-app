@@ -337,7 +337,7 @@ def tela_regras():
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
-    st.image(image, caption="Chopp's League", use_container_width =True)
+    st.image(image, caption="Chopp's League", use_container_width=True)
     pagina = st.selectbox("Navegue pelo app:", [
         "🏠 Tela Principal",
         "📊 Estatísticas da Partida",
@@ -358,5 +358,5 @@ elif pagina == "🎲 Sorteio de Times":
     tela_sorteio()
 elif pagina == "✅ Presença e Login":
     tela_presenca_login()
-elif st.session_state.pagina == "📜 Regras da Pelada":
+elif pagina == "📜 Regras da Pelada":
     tela_regras()
