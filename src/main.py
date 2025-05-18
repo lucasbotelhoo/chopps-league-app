@@ -194,9 +194,9 @@ def tela_presenca_login():
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
         except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posicao", "Nascimento", "Telefone"])
     else:
-        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
+        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posicao", "Nascimento", "Telefone"])
 
     # Carrega as presenças com tratamento para arquivos vazios
     if os.path.exists(FILE_PRESENCAS):
@@ -235,15 +235,26 @@ def tela_presenca_login():
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
+                posicao = st.selectbox("Posição que joga", options=["Linha", "Gol"])
+                nascimento = st.date_input("Data de nascimento")
+                telefone = st.text_input("Número de telefone")
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    if not nome or not email or not senha:
-                        st.warning("Preencha todos os campos.")
+                    # Verifica se todos os campos foram preenchidos
+                    if not nome or not email or not senha or not posicao or not nascimento or not telefone:
+                        st.warning("Por favor, preencha todos os campos.")
                     elif email in usuarios["Email"].values:
                         st.warning("Este e-mail já está cadastrado.")
                     else:
-                        novo_usuario = {"Nome": nome, "Email": email, "Senha": senha}
+                        novo_usuario = {
+                            "Nome": nome,
+                            "Email": email,
+                            "Senha": senha,
+                            "Posicao": posicao,
+                            "Nascimento": nascimento.strftime("%Y-%m-%d"),
+                            "Telefone": telefone
+                        }
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
