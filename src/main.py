@@ -1,10 +1,12 @@
 import streamlit as st
+from streamlit_js_eval import streamlit_js_eval
 import requests
 from io import BytesIO
 from PIL import Image
 import pandas as pd
 import random
 import os
+
 
 # Arquivos CSV para armazenar dados localmente
 FILE_PARTIDAS = "partidas.csv"
@@ -185,13 +187,6 @@ PASTA_USUARIOS = "usuarios"
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
 FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
-
-import streamlit as st
-import pandas as pd
-import os
-import re
-import streamlit as st
-from streamlit_js_eval import streamlit_js_eval
 
 FILE_USUARIOS = "usuarios.csv"
 FILE_PRESENCAS = "presencas.csv"
