@@ -186,19 +186,26 @@ os.makedirs(PASTA_USUARIOS, exist_ok=True)
 FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
 FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 
+import streamlit as st
+import pandas as pd
+import os
+
+FILE_USUARIOS = "usuarios.csv"
+FILE_PRESENCAS = "presencas.csv"
+
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados dos usuários com tratamento para arquivos vazios
+    # Carrega os dados dos usuários
     if os.path.exists(FILE_USUARIOS):
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
         except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "DataNascimento", "Telefone"])
+            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "Nascimento", "Telefone"])
     else:
-        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "DataNascimento", "Telefone"])
+        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "Nascimento", "Telefone"])
 
-    # Carrega as presenças com tratamento para arquivos vazios
+    # Carrega as presenças
     if os.path.exists(FILE_PRESENCAS):
         try:
             presencas = pd.read_csv(FILE_PRESENCAS)
@@ -207,11 +214,9 @@ def tela_presenca_login():
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
-    # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
 
-    # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
@@ -235,32 +240,32 @@ def tela_presenca_login():
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
-                posicao = st.selectbox("Posição", ["Linha", "Gol"])
+                posicao = st.selectbox("Posição que joga", ["Linha", "Gol"])
                 nascimento = st.date_input("Data de nascimento")
-                st.write("Data selecionada:", nascimento.strftime("%d/%m/%Y"))
                 telefone = st.text_input("Número de telefone")
 
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    # Campos obrigatórios
                     if not nome or not email or not senha or not posicao or not nascimento or not telefone:
                         st.warning("Preencha todos os campos.")
                     elif email in usuarios["Email"].values:
                         st.warning("Este e-mail já está cadastrado.")
                     else:
+                        nascimento_formatado = nascimento.strftime("%d/%m/%Y")  # aqui garante formato dd/mm/yyyy
                         novo_usuario = {
                             "Nome": nome,
                             "Email": email,
                             "Senha": senha,
                             "Posição": posicao,
-                            "DataNascimento": nascimento.strftime("%d/%m/%Y"),  # formato dia/mês/ano
+                            "Nascimento": nascimento_formatado,
                             "Telefone": telefone
                         }
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
                         st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
+                        st.write(f"Data de nascimento cadastrada: {nascimento_formatado}")
 
     else:
         usuario = st.session_state.usuario_logado
