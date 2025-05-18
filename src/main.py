@@ -349,12 +349,13 @@ def tela_regras():
     # Nova regra: Avaliação pós-jogo
     subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba, Craque e Destaque")
     st.markdown("""
-    - Após cada partida, será feita uma avaliação para eleger:
-        - **Péreba**: jogador que teve a pior performance.
+    - Após cada partida, será feita uma votação divertida para eleger:
+        - **Péreba**: jogador com a pior performance da rodada.
         - **Craque**: jogador com a melhor performance.
-        - **Destaque**: jogador que se destacou de forma especial, independentemente dos gols.
-    - Essas avaliações ajudam a melhorar o espírito de equipe e o comprometimento.
-    - O resultado será divulgado na sequência para reconhecimento e feedback.
+    - A votação é **exclusiva para quem confirmou presença e jogou na pelada**.
+    - Somente jogadores presentes poderão votar.
+    - A finalidade é **uma brincadeira para animar o grupo e fortalecer o espírito da pelada**.
+    - Os resultados serão divulgados na tela **Avaliação Pós-Jogo**.
     """)
 
 # Menu lateral para navegação
