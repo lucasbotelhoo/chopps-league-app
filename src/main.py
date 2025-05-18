@@ -198,16 +198,16 @@ def formatar_telefone(telefone):
     # Remove tudo que não for número
     numeros = re.sub(r'\D', '', telefone)
     
-    # Valida quantidade mínima (11 dígitos: 2 do DDD + 9 + 8 do número)
+    # Deve ter 11 dígitos: DDD (2) + 9 + 8 dígitos = 11
     if len(numeros) != 11:
         return None
     
-    # Formata no padrão (XX) 9 XXXX-XXXX
     ddd = numeros[:2]
-    numero1 = numeros[2]    # geralmente 9 para celular
-    parte1 = numeros[3:7]   # 4 primeiros dígitos depois do 9
-    parte2 = numeros[7:11]  # últimos 4 dígitos
-    telefone_formatado = f"({ddd}) {numero1} {parte1}-{parte2}"
+    digito_nove = numeros[2]
+    cinco_digitos = numeros[3:8]
+    quatro_digitos = numeros[8:12]
+    
+    telefone_formatado = f"({ddd}) {digito_nove} {cinco_digitos}-{quatro_digitos}"
     return telefone_formatado
 
 def tela_presenca_login():
@@ -231,11 +231,9 @@ def tela_presenca_login():
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
-    # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
 
-    # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
@@ -261,7 +259,9 @@ def tela_presenca_login():
                 senha = st.text_input("Senha", type="password")
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
-                telefone_raw = st.text_input("Número de telefone (somente números)")
+                telefone_raw = st.text_input(
+                    "Número de telefone (Digite o DDD + número completo, ex: 319991159656)"
+                )
 
                 submit = st.form_submit_button("Cadastrar")
 
@@ -271,7 +271,7 @@ def tela_presenca_login():
                     if not nome or not email or not senha or not posicao or not nascimento or not telefone_raw:
                         st.warning("Preencha todos os campos.")
                     elif telefone is None:
-                        st.warning("Número de telefone inválido. Use formato: (31) 9 9115-9656")
+                        st.warning("Número de telefone inválido. Use o formato: (31) 9 99115-9656")
                     elif email in usuarios["Email"].values:
                         st.warning("Este e-mail já está cadastrado.")
                     else:
