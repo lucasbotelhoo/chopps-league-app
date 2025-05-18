@@ -235,15 +235,15 @@ def tela_presenca_login():
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
-                posicao = st.selectbox("Posição que joga", options=["Linha", "Gol"])
+                posicao = st.selectbox("Posição que joga", ["Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
                 telefone = st.text_input("Número de telefone")
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    # Verifica se todos os campos foram preenchidos
+                    # Validação campos obrigatórios
                     if not nome or not email or not senha or not posicao or not nascimento or not telefone:
-                        st.warning("Por favor, preencha todos os campos.")
+                        st.warning("Preencha todos os campos.")
                     elif email in usuarios["Email"].values:
                         st.warning("Este e-mail já está cadastrado.")
                     else:
@@ -252,7 +252,7 @@ def tela_presenca_login():
                             "Email": email,
                             "Senha": senha,
                             "Posicao": posicao,
-                            "Nascimento": nascimento.strftime("%d/%m/%Y"),
+                            "Nascimento": nascimento.strftime("%d/%m/%Y"),  # Formato DD/MM/AAAA
                             "Telefone": telefone
                         }
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
