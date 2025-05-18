@@ -5,6 +5,7 @@ from PIL import Image
 import pandas as pd
 import random
 import os
+import re
 
 
 # Arquivos CSV para armazenar dados localmente
