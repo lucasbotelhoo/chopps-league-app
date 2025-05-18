@@ -335,9 +335,6 @@ def main():
     if opcao == "Regras Oficiais":
         tela_regras()
 
-if __name__ == "__main__":
-    main()
-
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
@@ -364,3 +361,5 @@ elif pagina == "✅ Presença e Login":
     tela_presenca_login()
 elif pagina == "📜 Regras Choppe's League":
     tela_regras()
+if __name__ == "__main__":
+    main()
