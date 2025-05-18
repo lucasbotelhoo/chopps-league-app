@@ -168,8 +168,16 @@ partidas, jogadores = load_data()
 os.makedirs("usuarios", exist_ok=True)
 
 # Caminhos dos arquivos (dentro da pasta criada)
-FILE_USUARIOS = "cadastro.csv"
-FILE_PRESENCAS = "presenca.csv"
+# Define o diretório base (onde o script está localizado)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
+
+# Cria a pasta 'usuarios' se não existir
+os.makedirs(PASTA_USUARIOS, exist_ok=True)
+
+# Define os caminhos dos arquivos
+FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
+FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
@@ -226,6 +234,7 @@ def tela_presenca_login():
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
+                        st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
 
     else:
         usuario = st.session_state.usuario_logado
@@ -239,6 +248,7 @@ def tela_presenca_login():
                 presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
                 presencas.to_csv(FILE_PRESENCAS, index=False)
                 st.success("Presença confirmada com sucesso!")
+                st.write(f"📁 Presença salva em: `{FILE_PRESENCAS}`")
 
         if st.button("Sair"):
             st.session_state.usuario_logado = None
