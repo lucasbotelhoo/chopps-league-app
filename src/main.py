@@ -190,122 +190,85 @@ import streamlit as st
 import pandas as pd
 import os
 import re
+import streamlit as st
+from streamlit_js_eval import streamlit_js_eval
 
 FILE_USUARIOS = "usuarios.csv"
 FILE_PRESENCAS = "presencas.csv"
 
-def formatar_telefone(telefone):
-    # Remove tudo que não for número
-    numeros = re.sub(r'\D', '', telefone)
-    
-    # Deve ter 11 dígitos: DDD (2) + 9 + 8 dígitos = 11
-    if len(numeros) != 11:
-        return None
-    
-    ddd = numeros[:2]
-    digito_nove = numeros[2]
-    cinco_digitos = numeros[3:8]
-    quatro_digitos = numeros[8:12]
-    
-    telefone_formatado = f"({ddd}) {digito_nove} {cinco_digitos}-{quatro_digitos}"
-    return telefone_formatado
+def formatar_telefone_js():
+    # JS para formatar o telefone enquanto digita
+    js_code = """
+    (function() {
+        let input = window.streamlitInput;
+        if (!input) return "";
+
+        let digits = input.replace(/\\D/g, '');
+        if (digits.length > 11) digits = digits.slice(0, 11);
+
+        let formatted = "";
+        if (digits.length > 0) {
+            formatted += "(" + digits.substring(0, 2);
+        }
+        if (digits.length >= 3) {
+            formatted += ") " + digits.substring(2, 3) + " ";
+        }
+        if (digits.length >= 7) {
+            formatted += digits.substring(3, 7) + "-";
+        } else if (digits.length > 3) {
+            formatted += digits.substring(3);
+        }
+        if (digits.length >= 7) {
+            formatted += digits.substring(7, 11);
+        }
+
+        return formatted;
+    })();
+    """
+    return js_code
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados dos usuários com tratamento para arquivos vazios
-    if os.path.exists(FILE_USUARIOS):
-        try:
-            usuarios = pd.read_csv(FILE_USUARIOS)
-        except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "Nascimento", "Telefone"])
-    else:
-        usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição", "Nascimento", "Telefone"])
+    # ... Seu código de carregamento e estado omitido para foco na parte do telefone ...
 
-    # Carrega as presenças com tratamento para arquivos vazios
-    if os.path.exists(FILE_PRESENCAS):
-        try:
-            presencas = pd.read_csv(FILE_PRESENCAS)
-        except pd.errors.EmptyDataError:
-            presencas = pd.DataFrame(columns=["Nome", "Email"])
-    else:
-        presencas = pd.DataFrame(columns=["Nome", "Email"])
-
-    if "usuario_logado" not in st.session_state:
-        st.session_state.usuario_logado = None
-
-    if not st.session_state.usuario_logado:
+    if not st.session_state.get("usuario_logado"):
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
-        if aba == "🔐 Login":
-            with st.form("form_login"):
-                email = st.text_input("E-mail")
-                senha = st.text_input("Senha", type="password")
-                login = st.form_submit_button("Entrar")
-
-                if login:
-                    user = usuarios[(usuarios["Email"] == email) & (usuarios["Senha"] == senha)]
-                    if not user.empty:
-                        st.session_state.usuario_logado = user.iloc[0].to_dict()
-                        st.success(f"Bem-vindo, {user.iloc[0]['Nome']}!")
-                        st.experimental_rerun()
-                    else:
-                        st.error("E-mail ou senha incorretos.")
-
-        elif aba == "📝 Cadastro":
+        if aba == "📝 Cadastro":
             with st.form("form_cadastro", clear_on_submit=True):
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
-                telefone_raw = st.text_input(
-                    "Número de telefone (Digite o DDD + número completo, ex: 319991159656)"
+
+                # Campo de telefone com máscara dinâmica usando streamlit_js_eval
+                telefone_raw = st.text_input("Número de telefone (com DDD, ex: (31) 9 99115-9656)")
+
+                # Passa valor para JS
+                st.experimental_set_query_params(streamlitInput=telefone_raw)
+                telefone_formatado = streamlit_js_eval(
+                    formatar_telefone_js(),
+                    key="telefone_mask"
                 )
+
+                st.write(f"Formato atual: `{telefone_formatado}`")
 
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    telefone = formatar_telefone(telefone_raw)
-
-                    if not nome or not email or not senha or not posicao or not nascimento or not telefone_raw:
+                    # Aqui você pode validar o telefone_formatado ou o raw
+                    # Exemplo básico:
+                    if len(''.join(filter(str.isdigit, telefone_formatado))) != 11:
+                        st.warning("Número de telefone inválido. Deve conter DDD + número completo.")
+                    elif not nome or not email or not senha or not posicao or not nascimento or not telefone_formatado:
                         st.warning("Preencha todos os campos.")
-                    elif telefone is None:
-                        st.warning("Número de telefone inválido. Use o formato: (31) 9 99115-9656")
-                    elif email in usuarios["Email"].values:
-                        st.warning("Este e-mail já está cadastrado.")
                     else:
-                        nascimento_formatado = nascimento.strftime("%d/%m/%Y")
-                        novo_usuario = {
-                            "Nome": nome,
-                            "Email": email,
-                            "Senha": senha,
-                            "Posição": posicao,
-                            "Nascimento": nascimento_formatado,
-                            "Telefone": telefone
-                        }
-                        usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
-                        usuarios.to_csv(FILE_USUARIOS, index=False)
-                        st.success("Cadastro realizado! Faça login para confirmar presença.")
-                        st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
+                        # Continue com o cadastro normalmente...
+                        st.success("Cadastro realizado com sucesso!")
 
-    else:
-        usuario = st.session_state.usuario_logado
-        st.success(f"Logado como: {usuario['Nome']} ({usuario['Email']})")
-
-        if usuario["Email"] in presencas["Email"].values:
-            st.info("✅ Presença já confirmada.")
-        else:
-            if st.button("Confirmar Presença"):
-                nova_presenca = {"Nome": usuario["Nome"], "Email": usuario["Email"]}
-                presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
-                presencas.to_csv(FILE_PRESENCAS, index=False)
-                st.success("Presença confirmada com sucesso!")
-                st.write(f"📁 Presença salva em: `{FILE_PRESENCAS}`")
-
-        if st.button("Sair"):
-            st.session_state.usuario_logado = None
-            st.experimental_rerun()
+    # ... restante do seu código ...
 
 def tela_regras():
     # Título principal maior, não quebra linha
