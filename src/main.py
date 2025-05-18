@@ -239,6 +239,8 @@ def tela_presenca_login():
         if st.button("Logout"):
 
 # Regras Oficiais
+import streamlit as st
+
 def tela_regras():
     st.markdown(
         """
@@ -336,13 +338,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-def main():
-    st.sidebar.title("Menu")
-    opcao = st.sidebar.radio("Selecione a tela:", ["Regras Oficiais"])
-
-    if opcao == "Regras Oficiais":
-        tela_regras()
 
 # CHAMADA CORRETA DO SCRIPT
 if __name__ == "__main__":
