@@ -193,11 +193,13 @@ def tela_presenca_login():
     # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
+
         if aba == "🔐 Login":
             with st.form("form_login"):
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
                 login = st.form_submit_button("Entrar")
+
                 if login:
                     user = usuarios[(usuarios["Email"] == email) & (usuarios["Senha"] == senha)]
                     if not user.empty:
@@ -206,12 +208,14 @@ def tela_presenca_login():
                         st.experimental_rerun()
                     else:
                         st.error("E-mail ou senha incorretos.")
+
         elif aba == "📝 Cadastro":
             with st.form("form_cadastro", clear_on_submit=True):
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
                 senha = st.text_input("Senha", type="password")
                 submit = st.form_submit_button("Cadastrar")
+
                 if submit:
                     if not nome or not email or not senha:
                         st.warning("Preencha todos os campos.")
@@ -222,9 +226,11 @@ def tela_presenca_login():
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
+
     else:
         usuario = st.session_state.usuario_logado
         st.success(f"Logado como: {usuario['Nome']} ({usuario['Email']})")
+
         if usuario["Email"] in presencas["Email"].values:
             st.info("✅ Presença já confirmada.")
         else:
@@ -233,6 +239,7 @@ def tela_presenca_login():
                 presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
                 presencas.to_csv(FILE_PRESENCAS, index=False)
                 st.success("Presença confirmada com sucesso!")
+
         if st.button("Sair"):
             st.session_state.usuario_logado = None
             st.experimental_rerun()
