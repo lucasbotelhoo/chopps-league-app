@@ -14,7 +14,7 @@ FILE_JOGADORES = "jogadores.csv"
 def init_data():
     if not os.path.exists(FILE_PARTIDAS):
         df = pd.DataFrame(columns=[
-            "Data", "Time 1", "Time 2"
+            "Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"
         ])
         df.to_csv(FILE_PARTIDAS, index=False)
 
@@ -34,20 +34,6 @@ def load_data():
 def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
-
-# Tela Principal com gráficos simples e indicadores
-# Carrega as partidas
-def carregar_partidas():
-    if os.path.exists(FILE_PARTIDAS):
-        try:
-            return pd.read_csv(FILE_PARTIDAS)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
-    else:
-        return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
-
-# Chamada correta
-partidas = carregar_partidas()
 
 # Tela para registrar estatísticas da partida
 # Configurações de caminho
