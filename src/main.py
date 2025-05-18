@@ -264,6 +264,7 @@ def tela_presenca_login():
 
         if st.button("Sair"):
             st.session_state.usuario_logado = None
+            st.experimental_rerun()
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
