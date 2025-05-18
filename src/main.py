@@ -57,16 +57,6 @@ def tela_principal(partidas, jogadores):
         st.write("Última partida registrada:")
         st.write(partidas.tail(1))
 
-    st.header("Resumo dos Jogadores")
-    st.write(f"Total de jogadores registrados: {len(jogadores)}")
-    if not jogadores.empty:
-        gols_totais = jogadores["Gols"].sum()
-        st.write(f"Gols totais: {gols_totais}")
-
-        # Gráfico de gols por jogador
-        gols_por_jogador = jogadores.groupby("Nome")["Gols"].sum().sort_values(ascending=False)
-        st.bar_chart(gols_por_jogador)
-
 # Exemplo de carregamento seguro:
 def load_data_safe():
     try:
