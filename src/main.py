@@ -186,6 +186,7 @@ def tela_presenca_login():
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
+
     # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
