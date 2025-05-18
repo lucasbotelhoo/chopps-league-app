@@ -250,7 +250,7 @@ def tela_regras():
         unsafe_allow_html=True
     )
 
-    # Subtítulos menores que o título principal
+    # Função para subtítulos menores
     def subtitulo(texto):
         st.markdown(f'<h3 style="font-size:20px; margin-top: 1em;">{texto}</h3>', unsafe_allow_html=True)
 
@@ -328,6 +328,16 @@ def tela_regras():
     - A finalidade é **uma brincadeira para animar o grupo e fortalecer o espírito da pelada**.
     - Os resultados serão divulgados na tela **Avaliação Pós-Jogo**.
     """)
+
+def main():
+    st.sidebar.title("Menu")
+    opcao = st.sidebar.radio("Selecione a tela:", ["Regras Oficiais"])
+
+    if opcao == "Regras Oficiais":
+        tela_regras()
+
+if __name__ == "__main__":
+    main()
 
 # Menu lateral para navegação
 with st.sidebar:
