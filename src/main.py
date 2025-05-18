@@ -344,7 +344,7 @@ with st.sidebar:
         "👟 Estatísticas dos Jogadores",
         "🎲 Sorteio de Times",
         "✅ Presença e Login",
-        "📜 Regras da Pelada"
+        "📜 Regras Choppe's League",
     ])
 
 # Controle de navegação
@@ -358,5 +358,5 @@ elif pagina == "🎲 Sorteio de Times":
     tela_sorteio()
 elif pagina == "✅ Presença e Login":
     tela_presenca_login()
-elif pagina == "📜 Regras da Pelada":
+elif pagina == "📜 Regras Choppe's League":
     tela_regras()
