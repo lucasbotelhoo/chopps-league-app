@@ -164,34 +164,33 @@ def tela_sorteio():
 init_data()
 partidas, jogadores = load_data()
 
-# Carrega os usuários existentes ou cria um novo DataFrame
+# Garante que a pasta "usuarios" existe
+os.makedirs("usuarios", exist_ok=True)
 
-# Arquivos de dados
-
-for x in ["usuarios", "presenca"]:
-    os.makedirs(x,  exist_ok=True)  # CRIA PASTA "data" SE NÃO EXISTIR
-    
-FILE_USUARIOS = "../usuarios/cadastro.csv"
-FILE_PRESENCAS = "../usuarios/presenca.csv"
+# Caminhos dos arquivos (dentro da pasta criada)
+FILE_USUARIOS = "usuarios/cadastro.csv"
+FILE_PRESENCAS = "usuarios/presenca.csv"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados
+    # Carrega os dados dos usuários
     if os.path.exists(FILE_USUARIOS):
         usuarios = pd.read_csv(FILE_USUARIOS)
     else:
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha"])
 
+    # Carrega as presenças
     if os.path.exists(FILE_PRESENCAS):
         presencas = pd.read_csv(FILE_PRESENCAS)
     else:
         presencas = pd.DataFrame(columns=["Nome", "Email"])
 
-    # Inicializa estado
+    # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
 
+    # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
