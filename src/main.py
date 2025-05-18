@@ -171,6 +171,9 @@ def tela_sorteio():
             st.write("- " + jogador)
 
 # Tela de cadastro e login
+import streamlit as st
+import re
+
 def formatar_telefone(telefone):
     numeros = re.sub(r'\D', '', telefone)[:11]
     if len(numeros) == 0:
@@ -213,7 +216,7 @@ def tela_presenca_login():
                 numeros = re.sub(r'\D', '', telefone_input)
                 if numeros != st.session_state["telefone_raw"]:
                     st.session_state["telefone_raw"] = numeros
-                    # Para forçar o recarregamento com o valor filtrado:
+                    # Força recarregamento para atualizar o input
                     st.experimental_rerun()
 
                 telefone_formatado = formatar_telefone(numeros)
@@ -250,10 +253,6 @@ def tela_presenca_login():
         if st.button("Logout"):
             st.session_state["usuario_logado"] = False
             st.experimental_rerun()
-
-
-if __name__ == "__main__":
-    tela_presenca_login()
 
 def tela_regras():
     # Título principal maior, não quebra linha
