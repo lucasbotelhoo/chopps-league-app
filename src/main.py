@@ -38,10 +38,6 @@ def save_data(partidas, jogadores):
 
 # Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
-    if not st.session_state.get("usuario_logado", False):
-        st.warning("Por favor, faça login para acessar esta tela.")
-        return
-
     st.title("Chopp's League")
     st.markdown("Bem-vindo à pelada entre amigos!")
 
@@ -77,10 +73,6 @@ def load_data_safe():
 
 # Tela para registrar estatísticas da partida
 def tela_partida(partidas):
-    if not st.session_state.get("usuario_logado", False):
-        st.warning("Por favor, faça login para acessar esta tela.")
-        return partidas
-
     st.title("Registrar Estatísticas da Partida")
 
     with st.form("form_partida", clear_on_submit=True):
@@ -113,10 +105,6 @@ def tela_partida(partidas):
 
 # Tela para registrar estatísticas dos jogadores
 def tela_jogadores(jogadores):
-    if not st.session_state.get("usuario_logado", False):
-        st.warning("Por favor, faça login para acessar esta tela.")
-        return jogadores
-
     st.title("Registrar Estatísticas dos Jogadores")
 
     jogadores_lista = [
@@ -231,16 +219,12 @@ def tela_login_obrigatorio():
 
 # Tela de presença separada
 def tela_confirmar_presenca():
-    if not st.session_state.get("usuario_logado", False):
-        st.warning("Você precisa estar logado para confirmar presença.")
-        return
-
     st.title("Confirmação de Presença")
     if st.button("Confirmar Presença"):
         st.success("Presença confirmada. Obrigado!")
 
 # Inicializa dados
-data_init = init_data()
+init_data()
 partidas, jogadores = load_data_safe()
 
 # Interface principal
