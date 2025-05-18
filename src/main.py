@@ -7,7 +7,6 @@ import random
 import os
 import re
 
-
 # Arquivos CSV para armazenar dados localmente
 FILE_PARTIDAS = "partidas.csv"
 FILE_JOGADORES = "jogadores.csv"
@@ -37,10 +36,13 @@ def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
-#Tela Principal com gráficos simples e indicadores
+# Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
-    st.title("Chopp's League")
+    if not st.session_state.get("usuario_logado", False):
+        st.warning("Por favor, faça login para acessar esta tela.")
+        return
 
+    st.title("Chopp's League")
     st.markdown("Bem-vindo à pelada entre amigos!")
 
     col1, col2 = st.columns(2)
@@ -59,25 +61,26 @@ def tela_principal(partidas, jogadores):
         st.write("Última partida registrada:")
         st.write(partidas.tail(1))
 
-# Exemplo de carregamento seguro:
+# Carregamento seguro
 def load_data_safe():
     try:
-        partidas = pd.read_csv("partidas/estatisticas_partidas.csv")
+        partidas = pd.read_csv("partidas.csv")
     except (FileNotFoundError, pd.errors.EmptyDataError):
-        partidas = pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+        partidas = pd.DataFrame(columns=["Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"])
 
     try:
-        jogadores = pd.read_csv("jogadores/jogadores.csv")
+        jogadores = pd.read_csv("jogadores.csv")
     except (FileNotFoundError, pd.errors.EmptyDataError):
         jogadores = pd.DataFrame(columns=["Nome", "Time", "Gols", "Assistências", "Faltas", "Cartões Amarelos", "Cartões Vermelhos"])
 
     return partidas, jogadores
 
-# Carrega os dados antes de chamar tela_principal
-partidas, jogadores = load_data_safe()
-
-#Tela para registrar estatísticas da partida
+# Tela para registrar estatísticas da partida
 def tela_partida(partidas):
+    if not st.session_state.get("usuario_logado", False):
+        st.warning("Por favor, faça login para acessar esta tela.")
+        return partidas
+
     st.title("Registrar Estatísticas da Partida")
 
     with st.form("form_partida", clear_on_submit=True):
@@ -110,6 +113,10 @@ def tela_partida(partidas):
 
 # Tela para registrar estatísticas dos jogadores
 def tela_jogadores(jogadores):
+    if not st.session_state.get("usuario_logado", False):
+        st.warning("Por favor, faça login para acessar esta tela.")
+        return jogadores
+
     st.title("Registrar Estatísticas dos Jogadores")
 
     jogadores_lista = [
@@ -150,17 +157,15 @@ def tela_jogadores(jogadores):
 
     return jogadores
 
-# Tela para sorteio dos times
-
 # Função para formatar telefone com nono dígito fixo
 def formatar_telefone_9fixo(numero):
     if len(numero) == 11:
         return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
     return numero
 
-# Tela de cadastro e login
-def tela_presenca_login():
-    st.title("Cadastro, Login e Confirmação de Presença")
+# Tela de login e cadastro obrigatório antes de qualquer uso
+def tela_login_obrigatorio():
+    st.title("Acesso ao Sistema")
 
     if "telefone_raw" not in st.session_state:
         st.session_state["telefone_raw"] = ""
@@ -175,60 +180,84 @@ def tela_presenca_login():
     if "nascimento" not in st.session_state:
         st.session_state["nascimento"] = None
 
+    aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
+
+    if aba == "📝 Cadastro":
+        with st.form("form_cadastro"):
+            nome = st.text_input("Nome completo", value=st.session_state["nome"])
+            email = st.text_input("E-mail", value=st.session_state["email"])
+            senha = st.text_input("Senha", type="password", value=st.session_state["senha"])
+            posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"],
+                                   index=["", "Linha", "Goleiro"].index(st.session_state["posicao"]) if st.session_state["posicao"] else 0)
+            nascimento = st.date_input("Data de nascimento", value=st.session_state["nascimento"])
+            telefone_input = st.text_input("Número de telefone (com DDD)", value=st.session_state["telefone_raw"], key="telefone_input")
+
+            submit = st.form_submit_button("Cadastrar")
+
+            if submit:
+                st.session_state["nome"] = nome
+                st.session_state["email"] = email
+                st.session_state["senha"] = senha
+                st.session_state["posicao"] = posicao
+                st.session_state["nascimento"] = nascimento
+                st.session_state["telefone_raw"] = telefone_input
+
+                numeros = re.sub(r'\D', '', telefone_input)[:11]
+
+                if len(numeros) >= 3 and numeros[2] != '9':
+                    numeros = numeros[:2] + '9' + numeros[2:]
+
+                telefone_formatado = formatar_telefone_9fixo(numeros)
+
+                if len(numeros) != 11:
+                    st.warning("Número de telefone inválido. Deve conter exatamente 11 dígitos.")
+                elif not nome or not email or not senha or not posicao or not nascimento:
+                    st.warning("Preencha todos os campos.")
+                else:
+                    st.success("Cadastro realizado com sucesso! Agora faça login.")
+
+    elif aba == "🔐 Login":
+        with st.form("form_login", clear_on_submit=True):
+            email_login = st.text_input("E-mail", key="email_login")
+            senha_login = st.text_input("Senha", type="password", key="senha_login")
+            submit_login = st.form_submit_button("Entrar")
+
+            if submit_login:
+                if email_login == st.session_state["email"] and senha_login == st.session_state["senha"]:
+                    st.session_state["usuario_logado"] = True
+                    st.success(f"Usuário {email_login} logado com sucesso!")
+                else:
+                    st.warning("Credenciais incorretas. Tente novamente.")
+
+# Tela de presença separada
+def tela_confirmar_presenca():
     if not st.session_state.get("usuario_logado", False):
-        aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
+        st.warning("Você precisa estar logado para confirmar presença.")
+        return
 
-        if aba == "📝 Cadastro":
-            with st.form("form_cadastro"):  # <- removido clear_on_submit
-                nome = st.text_input("Nome completo", value=st.session_state["nome"])
-                email = st.text_input("E-mail", value=st.session_state["email"])
-                senha = st.text_input("Senha", type="password", value=st.session_state["senha"])
-                posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"], index=["", "Linha", "Goleiro"].index(st.session_state["posicao"]) if st.session_state["posicao"] else 0)
-                nascimento = st.date_input("Data de nascimento", value=st.session_state["nascimento"])
-                telefone_input = st.text_input("Número de telefone (com DDD)", value=st.session_state["telefone_raw"], key="telefone_input")
+    st.title("Confirmação de Presença")
+    if st.button("Confirmar Presença"):
+        st.success("Presença confirmada. Obrigado!")
 
-                submit = st.form_submit_button("Cadastrar")
+# Inicializa dados
+data_init = init_data()
+partidas, jogadores = load_data_safe()
 
-                if submit:
-                    # Salva os valores preenchidos
-                    st.session_state["nome"] = nome
-                    st.session_state["email"] = email
-                    st.session_state["senha"] = senha
-                    st.session_state["posicao"] = posicao
-                    st.session_state["nascimento"] = nascimento
-                    st.session_state["telefone_raw"] = telefone_input
+# Interface principal
+tela_login_obrigatorio()
 
-                    numeros = re.sub(r'\D', '', telefone_input)
+if st.session_state.get("usuario_logado", False):
+    st.sidebar.title("Navegação")
+    tela = st.sidebar.selectbox("Ir para:", ["Início", "Registrar Partida", "Registrar Jogador", "Confirmar Presença"])
 
-                    if len(numeros) >= 3 and numeros[2] != '9':
-                        numeros = numeros[:2] + '9' + numeros[2:]
-
-                    telefone_formatado = formatar_telefone_9fixo(numeros)
-
-                    if len(numeros) != 11:
-                        st.warning("Número de telefone inválido. Deve conter DDD + 9 + número completo (11 dígitos).")
-                    elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
-                        st.warning("Preencha todos os campos.")
-                    else:
-                        # Resetar estado se quiser limpar após sucesso
-                        st.success(f"Cadastro realizado com sucesso!\nTelefone formatado: {telefone_formatado}")
-
-        elif aba == "🔐 Login":
-            with st.form("form_login", clear_on_submit=True):
-                email_login = st.text_input("E-mail", key="email_login")
-                senha_login = st.text_input("Senha", type="password", key="senha_login")
-                submit_login = st.form_submit_button("Entrar")
-
-                if submit_login:
-                    if email_login and senha_login:
-                        st.session_state["usuario_logado"] = True
-                        st.success(f"Usuário {email_login} logado com sucesso!")
-                    else:
-                        st.warning("Preencha email e senha para login.")
-    else:
-        st.write("Usuário já está logado!")
-        if st.button("Confirmar Presença"):
-            st.success("Presença confirmada. Obrigado!")
+    if tela == "Início":
+        tela_principal(partidas, jogadores)
+    elif tela == "Registrar Partida":
+        partidas = tela_partida(partidas)
+    elif tela == "Registrar Jogador":
+        jogadores = tela_jogadores(jogadores)
+    elif tela == "Confirmar Presença":
+        tela_confirmar_presenca()
 
 # Regras Oficiais
 def tela_regras():
@@ -319,7 +348,7 @@ def tela_regras():
     - A votação é **exclusiva para quem confirmou presença e jogou na pelada**.
     - Somente jogadores presentes poderão votar.
     - A finalidade é **uma brincadeira para animar o grupo e fortalecer o espírito da pelada**.
-    - Os resultados serão divulgados para descontração na tela 'Avaliação pós-jogo'.
+    - Os resultados serão divulgados para descontração na tela **'Avaliação pós-jogo'**.
     """)
 
 # Menu lateral para navegação
