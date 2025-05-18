@@ -7,6 +7,24 @@ import random
 import os
 import re
 
+# Impede acesso direto à main.py
+if not st.session_state.get("usuario_logado", False):
+    st.error("⛔ Acesso negado. Faça login primeiro.")
+    st.stop()
+
+# Conteúdo da tela protegida
+st.set_page_config(page_title="Sistema Chopps", page_icon="🍺")
+st.title("🏆 Sistema Protegido")
+st.success(f"Bem-vindo(a), {st.session_state.get('nome', 'Usuário')}!")
+
+st.write("Aqui vão as telas e funcionalidades do sistema.")
+
+# Botão de logout
+if st.button("Sair"):
+    for k in list(st.session_state.keys()):
+        del st.session_state[k]
+    st.switch_page("cadastrologin")  # volta para a tela de login
+
 # Arquivos CSV para armazenar dados localmente
 FILE_PARTIDAS = "partidas.csv"
 FILE_JOGADORES = "jogadores.csv"
