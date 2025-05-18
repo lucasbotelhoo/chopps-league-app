@@ -346,6 +346,17 @@ def tela_regras():
     - **Quem não estiver em dia com os compromissos não joga.**
     """)
 
+    # Nova regra: Avaliação pós-jogo
+    subtitulo("⭐ 10. Avaliação Pós-Jogo: Péreba, Craque e Destaque")
+    st.markdown("""
+    - Após cada partida, será feita uma avaliação para eleger:
+        - **Péreba**: jogador que teve a pior performance.
+        - **Craque**: jogador com a melhor performance.
+        - **Destaque**: jogador que se destacou de forma especial, independentemente dos gols.
+    - Essas avaliações ajudam a melhorar o espírito de equipe e o comprometimento.
+    - O resultado será divulgado na sequência para reconhecimento e feedback.
+    """)
+
 # Menu lateral para navegação
 with st.sidebar:
     image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
