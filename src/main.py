@@ -182,14 +182,6 @@ def tela_sorteio():
         for jogador in time2:
             st.write("- " + jogador)
 
-# Inicialização dos dados
-init_data()
-partidas, jogadores = load_data()
-
-# Inicialização dos dados
-init_data()
-partidas, jogadores = load_data()
-
 # Garante que a pasta "usuarios" existe
 os.makedirs("usuarios", exist_ok=True)
 
