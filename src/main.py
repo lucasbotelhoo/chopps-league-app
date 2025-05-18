@@ -173,14 +173,10 @@ def tela_sorteio():
 os.makedirs("usuarios", exist_ok=True)
 
 # Caminhos dos arquivos (dentro da pasta criada)
-# Define o diretório base (onde o script está localizado)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PASTA_USUARIOS = os.path.join(BASE_DIR, "usuarios")
-
-# Cria a pasta 'usuarios' se não existir
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 
-# Define os caminhos dos arquivos
 PASTA_USUARIOS = "usuarios"
 os.makedirs(PASTA_USUARIOS, exist_ok=True)
 FILE_USUARIOS = os.path.join(PASTA_USUARIOS, "cadastro.csv")
@@ -189,7 +185,7 @@ FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
 
-    # Carrega os dados dos usuários com tratamento para arquivos vazios
+    # Carrega os dados dos usuários
     if os.path.exists(FILE_USUARIOS):
         try:
             usuarios = pd.read_csv(FILE_USUARIOS)
@@ -198,20 +194,18 @@ def tela_presenca_login():
     else:
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição"])
 
-    # Carrega as presenças com tratamento para arquivos vazios
+    # Carrega as presenças
     if os.path.exists(FILE_PRESENCAS):
         try:
             presencas = pd.read_csv(FILE_PRESENCAS)
         except pd.errors.EmptyDataError:
-            presencas = pd.DataFrame(columns=["Nome", "Email"])
+            presencas = pd.DataFrame(columns=["Nome", "Email", "Posição"])
     else:
-        presencas = pd.DataFrame(columns=["Nome", "Email"])
+        presencas = pd.DataFrame(columns=["Nome", "Email", "Posição"])
 
-    # Inicializa o estado da sessão
     if "usuario_logado" not in st.session_state:
         st.session_state.usuario_logado = None
 
-    # Tela de login ou cadastro
     if not st.session_state.usuario_logado:
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
@@ -258,10 +252,14 @@ def tela_presenca_login():
             st.info("✅ Presença já confirmada.")
         else:
             if st.button("Confirmar Presença"):
-                nova_presenca = {"Nome": usuario["Nome"], "Email": usuario["Email"]}
+                nova_presenca = {
+                    "Nome": usuario["Nome"],
+                    "Email": usuario["Email"],
+                    "Posição": usuario.get("Posição", "Não informado")
+                }
                 presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
                 presencas.to_csv(FILE_PRESENCAS, index=False)
-                st.success("Presença confirmada com sucesso!")
+                st.success(f"Presença confirmada com sucesso!\n\n👤 {usuario['Nome']} - 🧤 Posição: {usuario.get('Posição', 'Não informado')}")
                 st.write(f"📁 Presença salva em: `{FILE_PRESENCAS}`")
 
         if st.button("Sair"):
