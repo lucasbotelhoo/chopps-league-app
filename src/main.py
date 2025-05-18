@@ -1,33 +1,17 @@
 import streamlit as st
-import requests
-from io import BytesIO
-from PIL import Image
-import pandas as pd
-import random
-import os
 import re
 
-# Tela inicial obrigatória
-if not st.session_state.get("usuario_logado", False):
-    tela_login_e_cadastro()
-else:
-    # Aqui vai sua lógica de navegação principal
-    st.sidebar.title("Navegação")
-    tela = st.sidebar.selectbox("Ir para:", ["Início", "Registrar Partida", "Registrar Jogador", "Confirmar Presença"])
-    
-    if tela == "Início":
-        tela_principal(partidas, jogadores)
-    elif tela == "Registrar Partida":
-        partidas = tela_partida(partidas)
-    elif tela == "Registrar Jogador":
-        jogadores = tela_jogadores(jogadores)
-    elif tela == "Confirmar Presença":
-        tela_confirmar_presenca()
-        
+# Função para formatar telefone
+def formatar_telefone_9fixo(numero):
+    if len(numero) == 11:
+        return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
+    return numero
+
+# Tela de Login e Cadastro
 def tela_login_e_cadastro():
     st.title("Acesso ao Sistema")
 
-    # Inicializa os campos no session_state
+    # Inicializa estados
     if "telefone_raw" not in st.session_state:
         st.session_state["telefone_raw"] = ""
     if "nome" not in st.session_state:
@@ -43,41 +27,33 @@ def tela_login_e_cadastro():
     if "usuario_logado" not in st.session_state:
         st.session_state["usuario_logado"] = False
 
-    # Abas de navegação entre login e cadastro
+    # Alterna entre abas
     aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
-    # Tela de Cadastro
     if aba == "📝 Cadastro":
         with st.form("form_cadastro"):
             nome = st.text_input("Nome completo", value=st.session_state["nome"])
             email = st.text_input("E-mail", value=st.session_state["email"])
             senha = st.text_input("Senha", type="password", value=st.session_state["senha"])
-            posicao = st.selectbox(
-                "Posição que joga",
-                ["", "Linha", "Goleiro"],
-                index=["", "Linha", "Goleiro"].index(st.session_state["posicao"]) if st.session_state["posicao"] else 0
-            )
+            posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"],
+                                   index=["", "Linha", "Goleiro"].index(st.session_state["posicao"]) if st.session_state["posicao"] else 0)
             nascimento = st.date_input("Data de nascimento", value=st.session_state["nascimento"])
-            telefone_input = st.text_input("Número de telefone (com DDD)", value=st.session_state["telefone_raw"], key="telefone_input")
+            telefone_input = st.text_input("Número de telefone (com DDD)", value=st.session_state["telefone_raw"])
 
             submit = st.form_submit_button("Cadastrar")
 
             if submit:
-                # Salva os dados no session_state
+                numeros = re.sub(r'\D', '', telefone_input)[:11]
+                if len(numeros) >= 3 and numeros[2] != '9':
+                    numeros = numeros[:2] + '9' + numeros[2:]
+                telefone_formatado = formatar_telefone_9fixo(numeros)
+
                 st.session_state["nome"] = nome
                 st.session_state["email"] = email
                 st.session_state["senha"] = senha
                 st.session_state["posicao"] = posicao
                 st.session_state["nascimento"] = nascimento
-                st.session_state["telefone_raw"] = telefone_input
-
-                # Limpa e valida o telefone
-                numeros = re.sub(r'\D', '', telefone_input)[:11]
-
-                if len(numeros) >= 3 and numeros[2] != '9':
-                    numeros = numeros[:2] + '9' + numeros[2:]
-
-                telefone_formatado = formatar_telefone_9fixo(numeros)
+                st.session_state["telefone_raw"] = telefone_formatado
 
                 if len(numeros) != 11:
                     st.warning("Número de telefone inválido. Deve conter exatamente 11 dígitos.")
@@ -86,16 +62,19 @@ def tela_login_e_cadastro():
                 else:
                     st.success("Cadastro realizado com sucesso! Agora faça login.")
 
-    # Tela de Login
     elif aba == "🔐 Login":
         with st.form("form_login", clear_on_submit=True):
-            email_login = st.text_input("E-mail", key="email_login")
-            senha_login = st.text_input("Senha", type="password", key="senha_login")
+            email_login = st.text_input("E-mail")
+            senha_login = st.text_input("Senha", type="password")
             submit_login = st.form_submit_button("Entrar")
 
             if submit_login:
                 if email_login == st.session_state["email"] and senha_login == st.session_state["senha"]:
                     st.session_state["usuario_logado"] = True
-                    st.success(f"Usuário {email_login} logado com sucesso!")
+                    st.success(f"Bem-vindo, {st.session_state['nome']}! Login realizado com sucesso.")
                 else:
-                    st.warning("Credenciais incorretas. Tente novamente.")
+                    st.warning("E-mail ou senha incorretos.")
+
+# Executa a tela
+if __name__ == "__main__":
+    tela_login_e_cadastro()
