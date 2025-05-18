@@ -238,8 +238,6 @@ def tela_presenca_login():
 
         if st.button("Logout"):
 
-import streamlit as st
-
 # Regras Oficiais
 def tela_regras():
     st.markdown(
