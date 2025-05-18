@@ -20,12 +20,12 @@ def init_data():
 
 def load_data_safe():
     try:
-        partidas = pd.read_csv("partidas/estatisticas_partidas.csv")
+        partidas = pd.read_csv(FILE_PARTIDAS)
     except (FileNotFoundError, pd.errors.EmptyDataError):
-        partidas = pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+        partidas = pd.DataFrame(columns=["Data", "Time 1", "Time 2", "Placar Time 1", "Placar Time 2", "Local"])
 
     try:
-        jogadores = pd.read_csv("jogadores/jogadores.csv")
+        jogadores = pd.read_csv(FILE_JOGADORES)
     except (FileNotFoundError, pd.errors.EmptyDataError):
         jogadores = pd.DataFrame(columns=["Nome", "Time", "Gols", "Assistências", "Faltas", "Cartões Amarelos", "Cartões Vermelhos"])
 
@@ -65,7 +65,7 @@ def tela_partida(partidas):
                 "Data": data, "Time 1": time1, "Time 2": time2,
                 "Placar Time 1": placar1, "Placar Time 2": placar2, "Local": local
             }
-            partidas = partidas.append(nova_partida, ignore_index=True)
+            partidas = pd.concat([partidas, pd.DataFrame([nova_partida])], ignore_index=True)
             partidas.to_csv(FILE_PARTIDAS, index=False)
             st.success("Partida registrada com sucesso!")
     st.dataframe(partidas)
@@ -93,7 +93,7 @@ def tela_jogadores(jogadores):
                 "Nome": nome, "Time": time, "Gols": gols, "Assistências": assistencias,
                 "Faltas": faltas, "Cartões Amarelos": cart_amarelos, "Cartões Vermelhos": cart_vermelhos
             }
-            jogadores = jogadores.append(registro, ignore_index=True)
+            jogadores = pd.concat([jogadores, pd.DataFrame([registro])], ignore_index=True)
             jogadores.to_csv(FILE_JOGADORES, index=False)
             st.success("Estatísticas do jogador registradas com sucesso!")
     st.dataframe(jogadores)
@@ -108,14 +108,13 @@ def tela_sorteio():
     ]
     if st.button("Sortear times"):
         random.shuffle(jogadores_lista)
-        time1 = jogadores_lista[:len(jogadores_lista)//2]
-        time2 = jogadores_lista[len(jogadores_lista)//2:]
+        meio = len(jogadores_lista) // 2
+        time1 = jogadores_lista[:meio]
+        time2 = jogadores_lista[meio:]
         st.write("**Time 1 (Borrusia):**")
-        for jogador in time1:
-            st.write("- " + jogador)
+        st.write("\n".join([f"- {j}" for j in time1]))
         st.write("**Time 2:**")
-        for jogador in time2:
-            st.write("- " + jogador)
+        st.write("\n".join([f"- {j}" for j in time2]))
 
 # Caminhos de usuários e presenças
 os.makedirs("usuarios", exist_ok=True)
@@ -127,20 +126,14 @@ FILE_PRESENCAS = os.path.join(PASTA_USUARIOS, "presenca.csv")
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
-    if os.path.exists(FILE_USUARIOS):
-        try:
-            usuarios = pd.read_csv(FILE_USUARIOS)
-        except pd.errors.EmptyDataError:
-            usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição"])
-    else:
+    try:
+        usuarios = pd.read_csv(FILE_USUARIOS)
+    except (FileNotFoundError, pd.errors.EmptyDataError):
         usuarios = pd.DataFrame(columns=["Nome", "Email", "Senha", "Posição"])
 
-    if os.path.exists(FILE_PRESENCAS):
-        try:
-            presencas = pd.read_csv(FILE_PRESENCAS)
-        except pd.errors.EmptyDataError:
-            presencas = pd.DataFrame(columns=["Nome", "Email", "Posição"])
-    else:
+    try:
+        presencas = pd.read_csv(FILE_PRESENCAS)
+    except (FileNotFoundError, pd.errors.EmptyDataError):
         presencas = pd.DataFrame(columns=["Nome", "Email", "Posição"])
 
     if "usuario_logado" not in st.session_state:
@@ -178,23 +171,21 @@ def tela_presenca_login():
                         usuarios = pd.concat([usuarios, pd.DataFrame([novo_usuario])], ignore_index=True)
                         usuarios.to_csv(FILE_USUARIOS, index=False)
                         st.success("Cadastro realizado! Faça login para confirmar presença.")
-                        st.write(f"📁 Dados salvos em: `{FILE_USUARIOS}`")
     else:
-        usuario = st.session_state.usuario_logado
-        st.success(f"Logado como: {usuario['Nome']} ({usuario['Email']})")
-        if usuario["Email"] in presencas["Email"].values:
+        usuario = st.session_state.usuario_logado or {}
+        nome = usuario.get("Nome", "Desconhecido")
+        email = usuario.get("Email", "")
+        posicao = usuario.get("Posição", "Não informado")
+
+        st.success(f"Logado como: {nome} ({email})")
+        if email in presencas["Email"].values:
             st.info("✅ Presença já confirmada.")
         else:
             if st.button("Confirmar Presença"):
-                nova_presenca = {
-                    "Nome": usuario["Nome"],
-                    "Email": usuario["Email"],
-                    "Posição": usuario.get("Posição", "Não informado")
-                }
+                nova_presenca = {"Nome": nome, "Email": email, "Posição": posicao}
                 presencas = pd.concat([presencas, pd.DataFrame([nova_presenca])], ignore_index=True)
                 presencas.to_csv(FILE_PRESENCAS, index=False)
-                st.success(f"Presença confirmada!\n\n🧤 {usuario['Nome']} - 👤 Posição: {usuario.get('Posição', 'Não informado')}")
-                st.write(f"📁 Presença salva em: `{FILE_PRESENCAS}`")
+                st.success(f"Presença confirmada!\n\n🧤 {nome} - 👤 Posição: {posicao}")
 
         if st.button("Sair"):
             st.session_state.usuario_logado = None
