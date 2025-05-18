@@ -268,22 +268,27 @@ def tela_presenca_login():
             st.experimental_rerun()
 
 def tela_regras():
+    # Título principal maior, não quebra linha
     st.markdown(
         """
-        <h1 style="font-size:28px; white-space: nowrap; overflow-x: auto;">
+        <h1 style="font-size:32px; white-space: nowrap; overflow-x: auto; margin-bottom: 0.5em;">
             📜 Regras Oficiais – Chopp's League
         </h1>
         """,
         unsafe_allow_html=True
     )
 
-    st.header("✅ 1. Confirmação de Presença")
+    # Subtítulos menores que o título principal
+    def subtitulo(texto):
+        st.markdown(f'<h3 style="font-size:20px; margin-top: 1em;">{texto}</h3>', unsafe_allow_html=True)
+
+    subtitulo("✅ 1. Confirmação de Presença")
     st.markdown("""
     - Os jogadores devem confirmar presença **até as 22h de quarta-feira**.
     - Quem não confirmar no prazo **não poderá jogar**.
     """)
 
-    st.header("⌛ 2. Tempo de Jogo e Rodízio")
+    subtitulo("⌛ 2. Tempo de Jogo e Rodízio")
     st.markdown("""
     - Cada partida terá duração de **7 minutos ou até 2 gols**, o que ocorrer primeiro.
     - O **time que entra joga pelo empate**:
@@ -291,7 +296,7 @@ def tela_regras():
         - Se perder, o **time que entrou sai normalmente**.
     """)
 
-    st.header("👕 3. Uniforme Obrigatório")
+    subtitulo("👕 3. Uniforme Obrigatório")
     st.markdown("""
     - É obrigatório comparecer com o uniforme padrão completo:
         - Camisa do **Borussia Dortmund**
@@ -301,14 +306,14 @@ def tela_regras():
     - Jogadores sem o uniforme completo **não poderão jogar**.
     """)
 
-    st.header("💰 4. Mensalidade e Pagamento")
+    subtitulo("💰 4. Mensalidade e Pagamento")
     st.markdown("""
     - A mensalidade deve ser paga **até o dia 10 de cada mês**.
     - **Jogadores inadimplentes não poderão jogar até quitar sua dívida**.
     - **Goleiros são isentos da mensalidade**, mas devem pagar **o uniforme**.
     """)
 
-    st.header("💸 5. Contribuição para o Caixa")
+    subtitulo("💸 5. Contribuição para o Caixa")
     st.markdown("""
     - Todos os jogadores, incluindo goleiros, devem contribuir com **R$20,00 adicionais**.
     - O valor será utilizado exclusivamente para:
@@ -318,24 +323,24 @@ def tela_regras():
         - **Confraternizações** ou outras necessidades da pelada
     """)
 
-    st.header("📅 6. Comprometimento")
+    subtitulo("📅 6. Comprometimento")
     st.markdown("""
     - Ao confirmar presença, o jogador assume o compromisso de comparecer.
     - **Faltas não justificadas** podem resultar em **suspensão da próxima rodada**.
     """)
 
-    st.header("⚠️ 7. Comportamento")
+    subtitulo("⚠️ 7. Comportamento")
     st.markdown("""
     - Discussões, brigas ou qualquer tipo de agressividade resultam em **suspensão automática da próxima rodada**.
     - Em caso de reincidência, o jogador poderá ser **banido temporariamente ou definitivamente**, conforme decisão do grupo.
     """)
 
-    st.header("🧤 8. Goleiros e Rodízio")
+    subtitulo("🧤 8. Goleiros e Rodízio")
     st.markdown("""
     - Na ausência de goleiro fixo, haverá **rodízio entre os jogadores de linha** para cobrir o gol.
     """)
 
-    st.header("🔐 9. Responsabilidade")
+    subtitulo("🔐 9. Responsabilidade")
     st.markdown("""
     - Comprometimento com **pagamentos, presença e respeito** é essencial para manter a organização.
     - **Quem não estiver em dia com os compromissos não joga.**
