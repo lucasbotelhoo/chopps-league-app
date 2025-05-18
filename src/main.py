@@ -45,11 +45,11 @@ def tela_principal(partidas, jogadores):
 
     with col1:
         image = Image.open("./imagens/borrusia_escudo.jpg")
-        st.image(image, caption="Borrusia",  use_container_width =True)
+        st.image(image, caption="Borussia", use_container_width=True)
 
     with col2:
         image = Image.open("./imagens/inter_escudo.jpg")
-        st.image(image, caption="Inter",  use_container_width =True)
+        st.image(image, caption="Inter", use_container_width=True)
 
     st.header("Resumo das Partidas")
     st.write(f"Total de partidas registradas: {len(partidas)}")
@@ -63,10 +63,29 @@ def tela_principal(partidas, jogadores):
         gols_totais = jogadores["Gols"].sum()
         st.write(f"Gols totais: {gols_totais}")
 
-    # Exemplo gráfico simples - gols por jogador
-    if not jogadores.empty:
+        # Gráfico de gols por jogador
         gols_por_jogador = jogadores.groupby("Nome")["Gols"].sum().sort_values(ascending=False)
         st.bar_chart(gols_por_jogador)
+
+# Exemplo de carregamento seguro:
+def load_data_safe():
+    try:
+        partidas = pd.read_csv("partidas/estatisticas_partidas.csv")
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        partidas = pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
+
+    try:
+        jogadores = pd.read_csv("jogadores/jogadores.csv")
+    except (FileNotFoundError, pd.errors.EmptyDataError):
+        jogadores = pd.DataFrame(columns=["Nome", "Time", "Gols", "Assistências", "Faltas", "Cartões Amarelos", "Cartões Vermelhos"])
+
+    return partidas, jogadores
+
+# Carrega os dados antes de chamar tela_principal
+partidas, jogadores = load_data_safe()
+
+# Chama a tela principal com os dois argumentos obrigatórios
+tela_principal(partidas, jogadores)
 
 # Tela para registrar estatísticas da partida
 def tela_partida(partidas):
