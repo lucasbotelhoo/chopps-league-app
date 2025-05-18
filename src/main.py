@@ -35,7 +35,7 @@ def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
-    # Tela Principal com gráficos simples e indicadores
+# Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
     st.title("Chopp's League")
 
@@ -69,71 +69,36 @@ def tela_principal(partidas, jogadores):
         st.bar_chart(gols_por_jogador)
 
 # Tela para registrar estatísticas da partida
-# Configurações de caminho
-PASTA_PARTIDAS = "partidas"
-FILE_PARTIDAS = os.path.join(PASTA_PARTIDAS, "estatisticas_partidas.csv")
-os.makedirs(PASTA_PARTIDAS, exist_ok=True)
-
-# Função para carregar partidas (trata arquivo vazio ou inexistente)
-def carregar_partidas():
-    if os.path.exists(FILE_PARTIDAS):
-        try:
-            return pd.read_csv(FILE_PARTIDAS)
-        except pd.errors.EmptyDataError:
-            return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
-    else:
-        return pd.DataFrame(columns=["Data", "Partida", "Borussia", "Inter de Milão"])
-
-# Função para registrar partidas
 def tela_partida(partidas):
     st.title("Registrar Estatísticas da Partida")
 
     with st.form("form_partida", clear_on_submit=True):
         data = st.date_input("Data da partida")
-        partidadisputada = st.number_input("Partida Disputada", min_value=0, step=1)
-        time1 = st.selectbox("Borussia", ["1", "2"])
-        time2 = st.selectbox("Inter de Milão", ["1", "2"])
+        time1 = st.selectbox("Time 1", ["Borrusia", "Time 2"])
+        time2 = "Borrusia" if time1 == "Time 2" else "Time 2"
+        placar1 = st.number_input(f"Placar {time1}", min_value=0, step=1)
+        placar2 = st.number_input(f"Placar {time2}", min_value=0, step=1)
+        local = st.text_input("Local da partida")
 
         submit = st.form_submit_button("Registrar")
 
         if submit:
-            if time1 == time2:
-                st.warning("Os times não podem ser iguais.")
-            else:
-                nova_partida = {
-                    "Data": data,
-                    "Partida": partidadisputada,
-                    "Borussia": time1,
-                    "Inter de Milão": time2
-                }
-                partidas = pd.concat([partidas, pd.DataFrame([nova_partida])], ignore_index=True)
-                partidas.to_csv(FILE_PARTIDAS, index=False)
-                st.success("Partida registrada com sucesso!")
+            nova_partida = {
+                "Data": data,
+                "Time 1": time1,
+                "Time 2": time2,
+                "Placar Time 1": placar1,
+                "Placar Time 2": placar2,
+                "Local": local,
+            }
+            partidas = partidas.append(nova_partida, ignore_index=True)
+            partidas.to_csv(FILE_PARTIDAS, index=False)
+            st.success("Partida registrada com sucesso!")
 
     st.write("Partidas registradas:")
     st.dataframe(partidas)
 
     return partidas
-
-# Função para mostrar resumo das partidas (exemplo simples)
-def tela_principal(partidas):
-    st.title("Chopp's League - Resumo das Partidas")
-    st.write(f"Total de partidas registradas: {len(partidas)}")
-
-    if not partidas.empty:
-        st.write("Última partida registrada:")
-        st.write(partidas.tail(1))
-
-# --- Programa principal ---
-
-# Carrega as partidas antes de usar
-partidas = carregar_partidas()
-
-# Tela para cadastrar partidas
-partidas = tela_partida(partidas)
-
-# Tela principal com resumo
-tela_principal(partidas)
 
 # Tela para registrar estatísticas dos jogadores
 def tela_jogadores(jogadores):
@@ -198,6 +163,30 @@ def tela_sorteio():
         for jogador in time2:
             st.write("- " + jogador)
 
+# Inicialização dos dados
+init_data()
+partidas, jogadores = load_data()
+
+# Menu lateral para navegação
+with st.sidebar:
+    image = Image.open("./imagens/logo.png")  # Substitua "logo.png" pelo nome do seu arquivo
+    st.image(image, caption="Chopp's League", use_container_width =True)
+    pagina = st.selectbox("Navegue pelo app:", [
+        "🏠 Tela Principal",
+        "📊 Estatísticas da Partida",
+        "👟 Estatísticas dos Jogadores",
+        "🎲 Sorteio de Times"
+    ])
+
+# Controle de navegação
+if pagina == "🏠 Tela Principal":
+    tela_principal(partidas, jogadores)
+elif pagina == "📊 Estatísticas da Partida":
+    partidas = tela_partida(partidas)
+elif pagina == "👟 Estatísticas dos Jogadores":
+    jogadores = tela_jogadores(jogadores)
+elif pagina == "🎲 Sorteio de Times":
+    tela_sorteio()
 # Inicialização dos dados
 init_data()
 partidas, jogadores = load_data()
