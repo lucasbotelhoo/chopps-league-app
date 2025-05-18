@@ -158,6 +158,12 @@ def formatar_telefone_9fixo(numero):
         return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
     return numero
 
+# Função para formatar telefone com nono dígito fixo
+def formatar_telefone_9fixo(numero):
+    if len(numero) == 11:
+        return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
+    return numero
+
 # Tela de cadastro e login
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
@@ -169,29 +175,6 @@ def tela_presenca_login():
         aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
         if aba == "📝 Cadastro":
-            # Input de telefone fora do formulário para evitar erro com rerun
-            telefone_input = st.text_input(
-                "Número de telefone",
-                value=st.session_state.get("telefone_raw", ""),
-                key="telefone_input"
-            )
-
-            numeros = re.sub(r'\D', '', telefone_input)
-
-            if len(numeros) >= 3 and numeros[2] != '9':
-                numeros = numeros[:2] + '9' + numeros[3:]
-
-            telefone_formatado = formatar_telefone_9fixo(numeros)
-
-            if telefone_formatado != st.session_state.get("telefone_raw", ""):
-                st.session_state["telefone_raw"] = telefone_formatado
-                st.session_state["trigger_rerun"] = True
-
-            if st.session_state.get("trigger_rerun"):
-                st.session_state["trigger_rerun"] = False
-                st.experimental_rerun()
-
-            # Formulário de cadastro
             with st.form("form_cadastro", clear_on_submit=True):
                 nome = st.text_input("Nome completo")
                 email = st.text_input("E-mail")
@@ -199,15 +182,29 @@ def tela_presenca_login():
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
 
+                telefone_input = st.text_input(
+                    "Número de telefone (com DDD)",
+                    value=st.session_state.get("telefone_raw", ""),
+                    key="telefone_input"
+                )
+
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
+                    numeros = re.sub(r'\D', '', telefone_input)
+
+                    if len(numeros) >= 3 and numeros[2] != '9':
+                        numeros = numeros[:2] + '9' + numeros[2:]
+
+                    telefone_formatado = formatar_telefone_9fixo(numeros)
+                    st.session_state["telefone_raw"] = telefone_formatado
+
                     if len(numeros) != 11:
                         st.warning("Número de telefone inválido. Deve conter DDD + 9 + número completo (11 dígitos).")
                     elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
                         st.warning("Preencha todos os campos.")
                     else:
-                        st.success("Cadastro realizado com sucesso!")
+                        st.success(f"Cadastro realizado com sucesso!\nTelefone formatado: {telefone_formatado}")
 
         elif aba == "🔐 Login":
             with st.form("form_login", clear_on_submit=True):
