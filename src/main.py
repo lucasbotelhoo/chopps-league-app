@@ -268,7 +268,14 @@ def tela_presenca_login():
             st.experimental_rerun()
 
 def tela_regras():
-    st.markdown("# 📜 Regras Oficiais – Chopp's League")
+    st.markdown(
+        """
+        <h1 style="font-size:28px; white-space: nowrap; overflow-x: auto;">
+            📜 Regras Oficiais – Chopp's League
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.header("✅ 1. Confirmação de Presença")
     st.markdown("""
