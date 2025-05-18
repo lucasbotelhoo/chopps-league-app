@@ -7,35 +7,26 @@ def formatar_telefone_9fixo(numero):
         return f"({numero[:2]}) {numero[2:7]}-{numero[7:]}"
     return numero
 
-# Tela principal (só acessível após login)
+# Tela protegida (só aparece após login)
 def tela_main():
     st.title("🏆 Tela Principal")
     st.success(f"Bem-vindo(a), {st.session_state['nome']}!")
 
-    st.write("Essa é a tela protegida do sistema. Você só vê isso após login.")
+    st.write("Essa é a área protegida do sistema.")
 
     if st.button("Sair"):
         for chave in list(st.session_state.keys()):
             del st.session_state[chave]
         st.experimental_rerun()
 
-# Tela de login/cadastro
+# Tela de login e cadastro
 def tela_login():
     st.title("Acesso ao Sistema")
 
-    # Inicialização de estados
-    for k, v in {
-        "telefone_raw": "",
-        "nome": "",
-        "email": "",
-        "senha": "",
-        "posicao": "",
-        "nascimento": None,
-        "usuario_logado": False,
-        "usuario_cadastrado": False
-    }.items():
-        if k not in st.session_state:
-            st.session_state[k] = v
+    if "usuario_logado" not in st.session_state:
+        st.session_state["usuario_logado"] = False
+    if "usuario_cadastrado" not in st.session_state:
+        st.session_state["usuario_cadastrado"] = False
 
     aba = st.radio("Selecione uma opção:", ["🔐 Login", "📝 Cadastro"])
 
@@ -58,18 +49,16 @@ def tela_login():
 
                 if len(numeros) != 11:
                     st.warning("Número de telefone inválido. Deve conter exatamente 11 dígitos.")
-                elif not nome or not email or not senha or not posicao or not nascimento:
+                elif not nome or not email or not senha or not posicao:
                     st.warning("Preencha todos os campos.")
                 else:
-                    # Salva cadastro na sessão
-                    st.session_state["nome"] = nome
-                    st.session_state["email"] = email
-                    st.session_state["senha"] = senha
-                    st.session_state["posicao"] = posicao
-                    st.session_state["nascimento"] = nascimento
-                    st.session_state["telefone_raw"] = telefone_formatado
+                    st.session_state["cadastro"] = {
+                        "nome": nome,
+                        "email": email,
+                        "senha": senha
+                    }
                     st.session_state["usuario_cadastrado"] = True
-                    st.success("Cadastro realizado com sucesso! Agora faça login.")
+                    st.success("Cadastro realizado! Agora faça login.")
 
     elif aba == "🔐 Login":
         with st.form("form_login", clear_on_submit=True):
@@ -78,19 +67,21 @@ def tela_login():
             submit_login = st.form_submit_button("Entrar")
 
             if submit_login:
+                cadastro = st.session_state.get("cadastro", {})
                 if (
-                    st.session_state.get("usuario_cadastrado")
-                    and email_login == st.session_state["email"]
-                    and senha_login == st.session_state["senha"]
+                    st.session_state["usuario_cadastrado"]
+                    and email_login == cadastro.get("email")
+                    and senha_login == cadastro.get("senha")
                 ):
                     st.session_state["usuario_logado"] = True
+                    st.session_state["nome"] = cadastro.get("nome")
                     st.success("Login realizado com sucesso!")
                     st.experimental_rerun()
                 else:
-                    st.warning("Credenciais inválidas ou usuário não cadastrado.")
+                    st.warning("E-mail ou senha incorretos.")
 
-# 🔁 Fluxo principal
-if not st.session_state.get("usuario_logado", False):
-    tela_login()
-else:
+# FLUXO PRINCIPAL
+if st.session_state.get("usuario_logado"):
     tela_main()
+else:
+    tela_login()
