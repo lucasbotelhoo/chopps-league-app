@@ -35,7 +35,7 @@ def save_data(partidas, jogadores):
     partidas.to_csv(FILE_PARTIDAS, index=False)
     jogadores.to_csv(FILE_JOGADORES, index=False)
 
-# Tela Principal com gráficos simples e indicadores
+#Tela Principal com gráficos simples e indicadores
 def tela_principal(partidas, jogadores):
     st.title("Chopp's League")
 
