@@ -180,12 +180,13 @@ def formatar_telefone(telefone):
         return ""
     if len(numeros) <= 2:
         return "(" + numeros
-    if len(numeros) == 3:
-        return f"({numeros[:2]}) {numeros[2]}"
     if len(numeros) <= 6:
+        # Ex: (11) 9 ou (11) 9123
         return f"({numeros[:2]}) {numeros[2:]}"
     if len(numeros) <= 10:
+        # Ex: (11) 9123-4567
         return f"({numeros[:2]}) {numeros[2:6]}-{numeros[6:]}"
+    # 11 dígitos completo (11) 9 1234-5678, coloca espaço entre 3º e 4º dígitos do número
     return f"({numeros[:2]}) {numeros[2]} {numeros[3:7]}-{numeros[7:11]}"
 
 def tela_presenca_login():
@@ -205,28 +206,25 @@ def tela_presenca_login():
                 posicao = st.selectbox("Posição que joga", ["", "Linha", "Goleiro"])
                 nascimento = st.date_input("Data de nascimento")
 
-                # Campo que aceita só números:
                 telefone_input = st.text_input(
-                    "Número de telefone (somente números, ex: 319991159656)",
-                    value=st.session_state["telefone_raw"],
+                    "Número de telefone",
+                    value=st.session_state.get("telefone_raw", ""),
                     key="telefone_input"
                 )
 
-                # Filtra só números e atualiza o estado para refletir no input
                 numeros = re.sub(r'\D', '', telefone_input)
-                if numeros != st.session_state["telefone_raw"]:
-                    st.session_state["telefone_raw"] = numeros
-                    # Força recarregamento para atualizar o input
-                    st.experimental_rerun()
-
                 telefone_formatado = formatar_telefone(numeros)
-                st.write(f"Telefone formatado: {telefone_formatado}")
+
+                # Atualiza valor no estado com a máscara
+                if telefone_formatado != st.session_state.get("telefone_raw", ""):
+                    st.session_state["telefone_raw"] = telefone_formatado
+                    st.experimental_rerun()
 
                 submit = st.form_submit_button("Cadastrar")
 
                 if submit:
-                    if len(numeros) != 11:
-                        st.warning("Número de telefone inválido. Deve conter DDD + número completo (11 dígitos).")
+                    if len(numeros) not in [10, 11]:
+                        st.warning("Número de telefone inválido. Deve conter DDD + número completo (10 ou 11 dígitos).")
                     elif not nome or not email or not senha or not posicao or not nascimento or not numeros:
                         st.warning("Preencha todos os campos.")
                     else:
@@ -253,6 +251,9 @@ def tela_presenca_login():
         if st.button("Logout"):
             st.session_state["usuario_logado"] = False
             st.experimental_rerun()
+
+if __name__ == "__main__":
+    tela_presenca_login()
 
 def tela_regras():
     # Título principal maior, não quebra linha
