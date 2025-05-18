@@ -236,10 +236,7 @@ def tela_presenca_login():
         if st.button("Confirmar Presença"):
             st.success("Presença confirmada. Obrigado!")
 
-        if st.button("Logout"):
-
 # Regras Oficiais
-
 def tela_regras():
     # Título principal maior, não quebra linha
     st.markdown(
