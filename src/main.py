@@ -185,6 +185,10 @@ def tela_presenca_login():
 
             if telefone_formatado != st.session_state.get("telefone_raw", ""):
                 st.session_state["telefone_raw"] = telefone_formatado
+                st.session_state["trigger_rerun"] = True
+
+            if st.session_state.get("trigger_rerun"):
+                st.session_state["trigger_rerun"] = False
                 st.experimental_rerun()
 
             # Formulário de cadastro
