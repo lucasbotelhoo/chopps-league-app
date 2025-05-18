@@ -168,8 +168,8 @@ partidas, jogadores = load_data()
 os.makedirs("usuarios", exist_ok=True)
 
 # Caminhos dos arquivos (dentro da pasta criada)
-FILE_USUARIOS = "..usuarios/cadastro.csv"
-FILE_PRESENCAS = "..usuarios/presenca.csv"
+FILE_USUARIOS = "cadastro.csv"
+FILE_PRESENCAS = "presenca.csv"
 
 def tela_presenca_login():
     st.title("Cadastro, Login e Confirmação de Presença")
